@@ -290,16 +290,16 @@
             border-radius: 8px;
         }
 
-        #detalhesAno {
+        #detalhesAno, #detalhesAcumulado {
             margin-top: 20px;
         }
 
-        #detalhesAno h3 {
+        #detalhesAno h3, #detalhesAcumulado h3 {
             color: #333;
             margin-bottom: 10px;
         }
 
-        #resumoAnual {
+        #resumoAnual, #resumoAcumulado {
             margin-bottom: 20px;
         }
 
@@ -310,18 +310,6 @@
             margin-bottom: 20px;
         }
 
-        .view-type-btn {
-            background: #e0e0e0;
-            color: #333;
-            width: auto;
-            padding: 8px 15px;
-        }
-
-        .view-type-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
         .porcentagem {
             font-size: 0.8em;
             color: #f39c12;
@@ -329,7 +317,6 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -844,24 +831,6 @@
             }
         }
 
-        // Função para calcular linha de tendência
-        function calcularLinhaTendencia(dados) {
-            const n = dados.length;
-            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-            
-            for (let i = 0; i < n; i++) {
-                sumX += i;
-                sumY += dados[i];
-                sumXY += i * dados[i];
-                sumX2 += i * i;
-            }
-            
-            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-            const intercept = (sumY - slope * sumX) / n;
-            
-            return dados.map((_, i) => slope * i + intercept);
-        }
-
         function atualizarVisaoAnual() {
             const ano = document.getElementById('anoAnalise').value;
             const investimentosPorMes = {};
@@ -904,8 +873,6 @@
                 return investimentosPorMes[chave] || 0;
             });
             
-            const linhaTendencia = calcularLinhaTendencia(valoresInvestimentos);
-            
             const graficoAnualEl = document.getElementById('graficoAnualInvestimentos');
             if (graficoAnualEl) {
                 if (graficoAnual) graficoAnual.destroy();
@@ -922,15 +889,18 @@
                                 type: 'bar'
                             },
                             { 
-                                label: 'Tendência', 
-                                data: linhaTendencia, 
+                                label: 'Evolução', 
+                                data: valoresInvestimentos, 
                                 type: 'line',
                                 borderColor: '#e74c3c',
                                 borderWidth: 3,
                                 fill: false,
-                                tension: 0.1,
-                                pointRadius: 0,
-                                pointHoverRadius: 0
+                                tension: 0.3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#e74c3c',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
                             }
                         ] 
                     },
@@ -938,7 +908,17 @@
                         responsive: true,
                         plugins: {
                             legend: { position: 'top' },
-                            title: { display: true, text: `Investimentos por Mês - ${ano} (com linha de tendência)` }
+                            title: { display: true, text: `Investimentos por Mês - ${ano}` },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        label += 'R$ ' + context.raw.toFixed(2);
+                                        return label;
+                                    }
+                                }
+                            }
                         },
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
@@ -960,8 +940,6 @@
                     const totalDespesas = (dadosMes.despesas || []).reduce((s, i) => s + i.valor, 0);
                     const totalInvestimentos = (dadosMes.investimentos || []).reduce((s, i) => s + i.valor, 0);
                     const saldoMes = totalReceitas - totalDespesas;
-                    
-                    // Calcular porcentagem do investimento em relação à receita
                     const porcentagemInvestimento = totalReceitas > 0 ? (totalInvestimentos / totalReceitas * 100) : 0;
                     
                     detalhesHTML += `
@@ -989,7 +967,6 @@
             const despesasAcumuladas = {};
             let todosAnos = [];
             
-            // Coletar todos os anos disponíveis
             Object.keys(dadosCompletos).forEach(chave => {
                 const ano = chave.split('-')[0];
                 if (!todosAnos.includes(ano)) {
@@ -1003,7 +980,6 @@
             let totalGeralReceitas = 0;
             let totalGeralDespesas = 0;
             
-            // Calcular totais por ano
             todosAnos.forEach(ano => {
                 let totalInvestidoAno = 0;
                 let totalReceitasAno = 0;
@@ -1034,17 +1010,17 @@
             });
             
             const saldoGeral = totalGeralReceitas - totalGeralDespesas;
+            const mediaInvestimento = todosAnos.length > 0 ? totalGeralInvestido / todosAnos.length : 0;
             
             document.getElementById('resumoAcumulado').innerHTML = `
                 <div class="stat-card"><h4>Total Investido Geral</h4><div>R$ ${totalGeralInvestido.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Total Receitas Geral</h4><div>R$ ${totalGeralReceitas.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Total Despesas Geral</h4><div>R$ ${totalGeralDespesas.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Saldo Geral</h4><div>R$ ${saldoGeral.toFixed(2)}</div></div>
-                <div class="stat-card"><h4>Média Investimento/Ano</h4><div>R$ ${(totalGeralInvestido/todosAnos.length).toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Média Investimento/Ano</h4><div>R$ ${mediaInvestimento.toFixed(2)}</div></div>
             `;
             
             const valoresInvestimentos = todosAnos.map(ano => investimentosAcumulados[ano] || 0);
-            const linhaTendencia = calcularLinhaTendencia(valoresInvestimentos);
             
             const graficoAcumuladoEl = document.getElementById('graficoAcumulado');
             if (graficoAcumuladoEl) {
@@ -1062,15 +1038,18 @@
                                 type: 'bar'
                             },
                             { 
-                                label: 'Tendência', 
-                                data: linhaTendencia, 
+                                label: 'Evolução', 
+                                data: valoresInvestimentos, 
                                 type: 'line',
                                 borderColor: '#e74c3c',
                                 borderWidth: 3,
                                 fill: false,
-                                tension: 0.1,
-                                pointRadius: 0,
-                                pointHoverRadius: 0
+                                tension: 0.3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#e74c3c',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
                             }
                         ] 
                     },
@@ -1078,7 +1057,17 @@
                         responsive: true,
                         plugins: {
                             legend: { position: 'top' },
-                            title: { display: true, text: 'Investimentos Acumulados por Ano (com linha de tendência)' }
+                            title: { display: true, text: 'Investimentos Acumulados por Ano' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        label += 'R$ ' + context.raw.toFixed(2);
+                                        return label;
+                                    }
+                                }
+                            }
                         },
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
