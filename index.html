@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças na Nuvem - Auto Save</title>
+    <title>Finanças na Nuvem - Sincronizado</title>
     <style>
         * {
             margin: 0;
@@ -268,6 +268,17 @@
             margin-bottom: 10px;
             border-radius: 8px;
         }
+
+        .config-link {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.9em;
+            padding: 5px;
+            width: auto;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -279,40 +290,40 @@
             <p>Auto-save em tempo real - Acesse de qualquer lugar</p>
         </div>
 
-        <!-- Configuração Inicial -->
-        <div id="setupBox" class="setup-box">
+        <!-- Configuração Inicial (escondido se já configurado) -->
+        <div id="setupBox" class="setup-box" style="display: none;">
             <h2>🚀 Configurar Conta na Nuvem</h2>
             <p>Crie sua conta gratuita no Supabase (30 segundos)</p>
             <input type="text" id="supabaseUrl" placeholder="URL do Supabase (ex: https://xyz.supabase.co)">
             <input type="text" id="supabaseKey" placeholder="Anon Key (pública)">
-            <button id="btnConectar">✅ Conectar à Nuvem</button>
-            <button id="btnOffline">📱 Usar só offline (local)</button>
+            <button id="btnSalvarConfig">✅ Salvar e Conectar</button>
             <p style="margin-top: 20px; font-size: 0.8em; color: #666;">
                 🔒 Dados criptografados e seguros. <a href="#" id="linkTutorial">Como criar conta grátis?</a>
             </p>
         </div>
 
         <!-- Status Cloud -->
-        <div id="cloudStatusBar" class="cloud-status-bar" style="display: none;">
+        <div id="cloudStatusBar" class="cloud-status-bar">
             <div class="status-indicator">
                 <div class="led" id="cloudLed"></div>
-                <span id="cloudStatusText">Conectando...</span>
+                <span id="cloudStatusText">Carregando...</span>
             </div>
             <div>
-                <button id="btnSincronizar" class="cloud-btn">🔄 Sincronizar Agora</button>
+                <button id="btnConfigurar" class="cloud-btn">⚙️ Configurar Nuvem</button>
+                <button id="btnSincronizar" class="cloud-btn">🔄 Sincronizar</button>
                 <button id="btnExportar" class="cloud-btn">💾 Exportar Backup</button>
                 <button id="btnImportar" class="cloud-btn">📂 Importar Backup</button>
             </div>
         </div>
 
         <!-- Tabs -->
-        <div class="tabs" id="tabs" style="display: none;">
+        <div class="tabs" id="tabs">
             <button id="tabMensalBtn" class="tab active">📅 Mensal</button>
             <button id="tabAnualBtn" class="tab">📊 Anual</button>
         </div>
 
         <!-- Conteúdo Mensal -->
-        <div id="tabMensal" style="display: none;">
+        <div id="tabMensal">
             <div class="cards-grid">
                 <div class="card card-despesas">
                     <h2>💸 Despesas</h2>
@@ -377,8 +388,8 @@
             <div class="graficos-section">
                 <h2>📊 Gráficos</h2>
                 <div class="graficos-grid">
-                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center">Despesas</p></div>
-                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center">Receitas</p></div>
+                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center">Despesas por Categoria</p></div>
+                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center">Receitas por Categoria</p></div>
                 </div>
             </div>
         </div>
@@ -393,7 +404,6 @@
                 </div>
                 <div id="resumoAnual" class="stats"></div>
                 <canvas id="graficoAnualInvestimentos" style="margin-top: 30px;"></canvas>
-                <div id="detalhesAno" style="margin-top: 30px;"></div>
             </div>
         </div>
     </div>
@@ -401,87 +411,61 @@
     <div id="loading" class="loading">🔄 Sincronizando com a nuvem...</div>
 
     <script>
-        // Configuração do Supabase (nuvem)
+        // Configuração do Supabase
         let supabaseClient = null;
         let modoOnline = false;
         let dadosCompletos = {};
-        let mesAtual = "2024-01";
+        let mesAtual = "";
         let despesas = [], receitas = [], investimentos = [];
         let graficoDespesas, graficoReceitas, graficoAnual;
 
-        // Inicialização
-        function init() {
-            // Verificar se já tem configuração salva
+        // Inicialização - tenta carregar configuração salva
+        async function init() {
             const savedUrl = localStorage.getItem('supabaseUrl');
             const savedKey = localStorage.getItem('supabaseKey');
             
             if (savedUrl && savedKey) {
+                // Tem configuração salva, tenta conectar
                 document.getElementById('supabaseUrl').value = savedUrl;
                 document.getElementById('supabaseKey').value = savedKey;
-                configurarSupabase();
+                await conectarSupabase(savedUrl, savedKey);
+            } else {
+                // Primeira vez, mostra configuração
+                document.getElementById('setupBox').style.display = 'block';
+                document.getElementById('cloudStatusBar').style.display = 'flex';
+                document.getElementById('cloudLed').className = 'led';
+                document.getElementById('cloudStatusText').innerHTML = '⚠️ Configure a nuvem para começar';
             }
             
-            // Configurar event listeners
             setupEventListeners();
         }
-        
-        function setupEventListeners() {
-            // Botões principais
-            document.getElementById('btnConectar').addEventListener('click', configurarSupabase);
-            document.getElementById('btnOffline').addEventListener('click', usarOffline);
-            document.getElementById('btnSincronizar').addEventListener('click', sincronizarAgora);
-            document.getElementById('btnExportar').addEventListener('click', exportarBackup);
-            document.getElementById('btnImportar').addEventListener('click', importarBackup);
-            document.getElementById('btnAnalisar').addEventListener('click', atualizarVisaoAnual);
-            document.getElementById('linkTutorial').addEventListener('click', mostrarTutorial);
-            
-            // Tabs
-            document.getElementById('tabMensalBtn').addEventListener('click', () => mostrarTab('mensal'));
-            document.getElementById('tabAnualBtn').addEventListener('click', () => mostrarTab('anual'));
-            
-            // Formulários
-            document.getElementById('formDespesa').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricao = document.getElementById('descDespesa').value;
-                const valor = parseFloat(document.getElementById('valorDespesa').value);
-                const categoria = document.getElementById('categoriaDespesa').value;
-                if (descricao && valor > 0) {
-                    despesas.push({ descricao, valor, categoria, data: new Date().toISOString() });
-                    dadosCompletos[mesAtual].despesas = despesas;
-                    atualizarTudo();
-                    document.getElementById('formDespesa').reset();
-                }
-            });
 
-            document.getElementById('formReceita').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricao = document.getElementById('descReceita').value;
-                const valor = parseFloat(document.getElementById('valorReceita').value);
-                const categoria = document.getElementById('categoriaReceita').value;
-                if (descricao && valor > 0) {
-                    receitas.push({ descricao, valor, categoria, data: new Date().toISOString() });
-                    dadosCompletos[mesAtual].receitas = receitas;
-                    atualizarTudo();
-                    document.getElementById('formReceita').reset();
-                }
-            });
-
-            document.getElementById('formInvestimento').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const tipo = document.getElementById('tipoInvestimento').value;
-                const valor = parseFloat(document.getElementById('valorInvestimento').value);
-                const descricao = document.getElementById('descInvestimento').value;
-                if (valor > 0) {
-                    investimentos.push({ tipo, valor, descricao, data: new Date().toISOString() });
-                    dadosCompletos[mesAtual].investimentos = investimentos;
-                    atualizarTudo();
-                    document.getElementById('formInvestimento').reset();
-                }
-            });
+        async function conectarSupabase(url, key) {
+            mostrarLoading(true);
+            
+            try {
+                supabaseClient = window.supabase.createClient(url, key);
+                modoOnline = true;
+                
+                // Verificar se a tabela existe e carregar dados
+                await carregarDaNuvem();
+                
+                document.getElementById('setupBox').style.display = 'none';
+                document.getElementById('cloudStatusBar').style.display = 'flex';
+                document.getElementById('cloudLed').className = 'led online';
+                document.getElementById('cloudStatusText').innerHTML = '✅ Conectado à nuvem - Salvando automaticamente';
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('cloudStatusText').innerHTML = '❌ Erro na conexão - Clique em Configurar';
+                document.getElementById('cloudLed').className = 'led';
+                modoOnline = false;
+            }
+            
+            mostrarLoading(false);
         }
 
-        // Configurar Supabase
-        async function configurarSupabase() {
+        async function salvarConfig() {
             const url = document.getElementById('supabaseUrl').value;
             const key = document.getElementById('supabaseKey').value;
             
@@ -493,50 +477,48 @@
             localStorage.setItem('supabaseUrl', url);
             localStorage.setItem('supabaseKey', key);
             
-            try {
-                supabaseClient = window.supabase.createClient(url, key);
-                modoOnline = true;
-                
-                await carregarDaNuvem();
-                
-                document.getElementById('setupBox').style.display = 'none';
-                document.getElementById('cloudStatusBar').style.display = 'flex';
-                document.getElementById('tabs').style.display = 'flex';
-                document.getElementById('tabMensal').style.display = 'block';
-                
-                document.getElementById('cloudLed').className = 'led online';
-                document.getElementById('cloudStatusText').innerHTML = '✅ Conectado à nuvem - Salvando automaticamente';
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao conectar: ' + error.message);
-                modoOnline = false;
-            }
+            await conectarSupabase(url, key);
         }
 
-        // Carregar da nuvem
         async function carregarDaNuvem() {
             if (!modoOnline || !supabaseClient) return;
             
             mostrarLoading(true);
             
             try {
-                // Verificar se a tabela existe
-                const { data, error } = await supabaseClient
+                // Tentar buscar dados
+                let { data, error } = await supabaseClient
                     .from('financas')
                     .select('dados')
                     .eq('usuario', 'default')
                     .maybeSingle();
                 
-                if (error && !error.message.includes('does not exist')) {
-                    console.error('Erro ao buscar dados:', error);
+                if (error) {
+                    if (error.message.includes('does not exist')) {
+                        // Tabela não existe, tentar criar
+                        const criado = await criarTabela();
+                        if (!criado) {
+                            modoOnline = false;
+                            mostrarLoading(false);
+                            return;
+                        }
+                        // Tentar buscar novamente
+                        const result = await supabaseClient
+                            .from('financas')
+                            .select('dados')
+                            .eq('usuario', 'default')
+                            .maybeSingle();
+                        data = result.data;
+                        error = result.error;
+                    }
+                    
+                    if (error && error.code !== 'PGRST116') {
+                        throw error;
+                    }
                 }
                 
                 if (data && data.dados) {
                     dadosCompletos = data.dados;
-                    localStorage.setItem('financasNuvemCache', JSON.stringify(dadosCompletos));
-                } else if (localStorage.getItem('financasNuvemCache')) {
-                    dadosCompletos = JSON.parse(localStorage.getItem('financasNuvemCache'));
                 } else {
                     dadosCompletos = {};
                 }
@@ -545,18 +527,42 @@
                 
             } catch (error) {
                 console.error('Erro ao carregar:', error);
-                // Fallback para localStorage
-                const cache = localStorage.getItem('financasNuvemCache');
-                if (cache) {
-                    dadosCompletos = JSON.parse(cache);
-                    carregarMesAtual();
-                }
+                alert('Erro ao carregar dados da nuvem: ' + error.message);
+                dadosCompletos = {};
+                carregarMesAtual();
             }
             
             mostrarLoading(false);
         }
 
-        // Salvar na nuvem automaticamente
+        async function criarTabela() {
+            return new Promise((resolve) => {
+                const confirmar = confirm(`A tabela 'financas' não existe no seu Supabase.
+
+Deseja criar agora? Você precisa:
+
+1. Acessar o SQL Editor do seu projeto Supabase
+2. Executar este SQL:
+
+CREATE TABLE financas (
+    id SERIAL PRIMARY KEY,
+    usuario TEXT DEFAULT 'default',
+    dados JSONB NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_usuario ON financas(usuario);
+
+Clique em OK para abrir o tutorial de criação.`);
+                
+                if (confirmar) {
+                    window.open('https://supabase.com/docs/guides/database/tables', '_blank');
+                    alert('Após criar a tabela, clique em "Sincronizar" para continuar.');
+                }
+                resolve(false);
+            });
+        }
+
         async function salvarNaNuvem() {
             if (!modoOnline || !supabaseClient) return;
             
@@ -574,55 +580,26 @@
                     return;
                 }
                 
-                // Cache local
-                localStorage.setItem('financasNuvemCache', JSON.stringify(dadosCompletos));
-                
+                // Indicar que salvou
                 const statusText = document.getElementById('cloudStatusText');
-                if (statusText) {
-                    statusText.innerHTML = '✅ Salvo na nuvem';
-                    setTimeout(() => {
-                        if (document.getElementById('cloudStatusText')) {
-                            document.getElementById('cloudStatusText').innerHTML = '✅ Conectado - Salvando automático';
-                        }
-                    }, 2000);
-                }
+                const originalText = statusText.innerHTML;
+                statusText.innerHTML = '✅ Salvo na nuvem';
+                setTimeout(() => {
+                    if (document.getElementById('cloudStatusText')) {
+                        document.getElementById('cloudStatusText').innerHTML = originalText;
+                    }
+                }, 2000);
                 
             } catch (error) {
                 console.error('Erro ao salvar:', error);
             }
         }
 
-        // Usar offline
-        function usarOffline() {
-            modoOnline = false;
-            const cache = localStorage.getItem('financasNuvemCache');
-            if (cache) {
-                dadosCompletos = JSON.parse(cache);
-            } else {
-                dadosCompletos = {};
-            }
-            
-            document.getElementById('setupBox').style.display = 'none';
-            document.getElementById('cloudStatusBar').style.display = 'flex';
-            document.getElementById('tabs').style.display = 'flex';
-            document.getElementById('tabMensal').style.display = 'block';
-            
-            document.getElementById('cloudLed').className = 'led';
-            document.getElementById('cloudStatusText').innerHTML = '📱 Modo offline - Dados locais';
-            
-            carregarMesAtual();
-        }
-
-        // Funções principais
-        function getChaveMes(mes, ano) {
-            return `${ano}-${String(parseInt(mes) + 1).padStart(2, '0')}`;
-        }
-
         function carregarMesAtual() {
             const data = new Date();
             const mes = data.getMonth();
             const ano = data.getFullYear();
-            const chave = getChaveMes(mes, ano);
+            const chave = `${ano}-${String(mes + 1).padStart(2, '0')}`;
             
             if (!dadosCompletos[chave]) {
                 dadosCompletos[chave] = { despesas: [], receitas: [], investimentos: [] };
@@ -657,7 +634,6 @@
                     `;
                 });
                 
-                // Adicionar event listeners para botões de delete
                 document.querySelectorAll('#listaDespesas .delete-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const index = parseInt(btn.dataset.index);
@@ -724,15 +700,10 @@
             const saldo = totalReceitas - totalDespesas;
             const totalInvestido = investimentos.reduce((s,i) => s + i.valor, 0);
             
-            const saldoAtual = document.getElementById('saldoAtual');
-            const totalReceitasEl = document.getElementById('totalReceitas');
-            const totalDespesasEl = document.getElementById('totalDespesas');
-            const totalInvestidoEl = document.getElementById('totalInvestido');
-            
-            if (saldoAtual) saldoAtual.innerHTML = `R$ ${saldo.toFixed(2)}`;
-            if (totalReceitasEl) totalReceitasEl.innerHTML = `R$ ${totalReceitas.toFixed(2)}`;
-            if (totalDespesasEl) totalDespesasEl.innerHTML = `R$ ${totalDespesas.toFixed(2)}`;
-            if (totalInvestidoEl) totalInvestidoEl.innerHTML = `R$ ${totalInvestido.toFixed(2)}`;
+            document.getElementById('saldoAtual').innerHTML = `R$ ${saldo.toFixed(2)}`;
+            document.getElementById('totalReceitas').innerHTML = `R$ ${totalReceitas.toFixed(2)}`;
+            document.getElementById('totalDespesas').innerHTML = `R$ ${totalDespesas.toFixed(2)}`;
+            document.getElementById('totalInvestido').innerHTML = `R$ ${totalInvestido.toFixed(2)}`;
         }
 
         function atualizarGraficos() {
@@ -792,13 +763,13 @@
             const tabAnualBtn = document.getElementById('tabAnualBtn');
             
             if (tab === 'mensal') {
-                if (tabMensal) tabMensal.style.display = 'block';
-                if (tabAnual) tabAnual.style.display = 'none';
+                tabMensal.style.display = 'block';
+                tabAnual.style.display = 'none';
                 tabMensalBtn.classList.add('active');
                 tabAnualBtn.classList.remove('active');
             } else {
-                if (tabMensal) tabMensal.style.display = 'none';
-                if (tabAnual) tabAnual.style.display = 'block';
+                tabMensal.style.display = 'none';
+                tabAnual.style.display = 'block';
                 tabMensalBtn.classList.remove('active');
                 tabAnualBtn.classList.add('active');
                 atualizarVisaoAnual();
@@ -806,10 +777,7 @@
         }
 
         function atualizarVisaoAnual() {
-            const anoInput = document.getElementById('anoAnalise');
-            if (!anoInput) return;
-            
-            const ano = anoInput.value;
+            const ano = document.getElementById('anoAnalise').value;
             const investimentosPorMes = {};
             let totalAno = 0;
             
@@ -821,13 +789,10 @@
                 }
             });
             
-            const resumoAnual = document.getElementById('resumoAnual');
-            if (resumoAnual) {
-                resumoAnual.innerHTML = `
-                    <div class="stat-card"><h4>Total Investido</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
-                    <div class="stat-card"><h4>Média Mensal</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
-                `;
-            }
+            document.getElementById('resumoAnual').innerHTML = `
+                <div class="stat-card"><h4>Total Investido no Ano</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Média Mensal</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
+            `;
             
             const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
             const valores = meses.map((_, i) => {
@@ -846,8 +811,12 @@
         }
 
         function sincronizarAgora() {
-            salvarNaNuvem();
-            alert('Sincronizado com a nuvem!');
+            if (modoOnline) {
+                carregarDaNuvem();
+                alert('Dados sincronizados da nuvem!');
+            } else {
+                alert('Modo offline. Configure a nuvem primeiro.');
+            }
         }
 
         function exportarBackup() {
@@ -883,6 +852,10 @@
             input.click();
         }
 
+        function mostrarConfig() {
+            document.getElementById('setupBox').style.display = 'block';
+        }
+
         function mostrarLoading(show) {
             const loading = document.getElementById('loading');
             if (loading) {
@@ -892,7 +865,7 @@
 
         function mostrarTutorial(e) {
             e.preventDefault();
-            alert(`📚 Como criar conta grátis no Supabase (30 segundos):
+            alert(`📚 Como criar conta grátis no Supabase:
 
 1. Acesse: https://supabase.com
 2. Clique em "Start your project"
@@ -900,9 +873,61 @@
 4. Crie um novo projeto (nome qualquer)
 5. Vá em "Project Settings" > "API"
 6. Copie "URL" e "anon public key"
-7. Volte aqui e cole os dados
+7. Volte aqui, cole os dados e clique em "Salvar e Conectar"
 
 🔒 É grátis (500MB) e seguro!`);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('btnSalvarConfig').addEventListener('click', salvarConfig);
+            document.getElementById('btnConfigurar').addEventListener('click', mostrarConfig);
+            document.getElementById('btnSincronizar').addEventListener('click', sincronizarAgora);
+            document.getElementById('btnExportar').addEventListener('click', exportarBackup);
+            document.getElementById('btnImportar').addEventListener('click', importarBackup);
+            document.getElementById('btnAnalisar').addEventListener('click', atualizarVisaoAnual);
+            document.getElementById('linkTutorial').addEventListener('click', mostrarTutorial);
+            document.getElementById('tabMensalBtn').addEventListener('click', () => mostrarTab('mensal'));
+            document.getElementById('tabAnualBtn').addEventListener('click', () => mostrarTab('anual'));
+            
+            // Formulários
+            document.getElementById('formDespesa').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const descricao = document.getElementById('descDespesa').value;
+                const valor = parseFloat(document.getElementById('valorDespesa').value);
+                const categoria = document.getElementById('categoriaDespesa').value;
+                if (descricao && valor > 0) {
+                    despesas.push({ descricao, valor, categoria, data: new Date().toISOString() });
+                    dadosCompletos[mesAtual].despesas = despesas;
+                    atualizarTudo();
+                    e.target.reset();
+                }
+            });
+
+            document.getElementById('formReceita').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const descricao = document.getElementById('descReceita').value;
+                const valor = parseFloat(document.getElementById('valorReceita').value);
+                const categoria = document.getElementById('categoriaReceita').value;
+                if (descricao && valor > 0) {
+                    receitas.push({ descricao, valor, categoria, data: new Date().toISOString() });
+                    dadosCompletos[mesAtual].receitas = receitas;
+                    atualizarTudo();
+                    e.target.reset();
+                }
+            });
+
+            document.getElementById('formInvestimento').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const tipo = document.getElementById('tipoInvestimento').value;
+                const valor = parseFloat(document.getElementById('valorInvestimento').value);
+                const descricao = document.getElementById('descInvestimento').value;
+                if (valor > 0) {
+                    investimentos.push({ tipo, valor, descricao, data: new Date().toISOString() });
+                    dadosCompletos[mesAtual].investimentos = investimentos;
+                    atualizarTudo();
+                    e.target.reset();
+                }
+            });
         }
 
         // Iniciar
