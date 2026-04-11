@@ -106,7 +106,6 @@
             100% { opacity: 1; }
         }
 
-        /* Seletor de Mês */
         .mes-selector {
             background: white;
             border-radius: 15px;
@@ -295,19 +294,18 @@
             border-radius: 8px;
         }
 
-        /* Melhorias para visão anual */
-#detalhesAno {
-    margin-top: 20px;
-}
+        #detalhesAno {
+            margin-top: 20px;
+        }
 
-#detalhesAno h3 {
-    color: #333;
-    margin-bottom: 10px;
-}
+        #detalhesAno h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
 
-#resumoAnual {
-    margin-bottom: 20px;
-}
+        #resumoAnual {
+            margin-bottom: 20px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -319,7 +317,6 @@
             <p>Auto-save em tempo real - Acesse de qualquer lugar</p>
         </div>
 
-        <!-- Configuração Inicial -->
         <div id="setupBox" class="setup-box" style="display: none;">
             <h2>🚀 Configurar Conta na Nuvem</h2>
             <p>Crie sua conta gratuita no Supabase (30 segundos)</p>
@@ -331,7 +328,6 @@
             </p>
         </div>
 
-        <!-- Status Cloud -->
         <div id="cloudStatusBar" class="cloud-status-bar">
             <div class="status-indicator">
                 <div class="led" id="cloudLed"></div>
@@ -345,7 +341,6 @@
             </div>
         </div>
 
-        <!-- Seletor de Mês/Ano -->
         <div class="mes-selector">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <span style="font-weight: bold; color: #333;">📅 Período:</span>
@@ -371,13 +366,11 @@
             </div>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs" id="tabs">
             <button id="tabMensalBtn" class="tab active">📅 Mensal</button>
             <button id="tabAnualBtn" class="tab">📊 Anual</button>
         </div>
 
-        <!-- Conteúdo Mensal -->
         <div id="tabMensal">
             <div class="cards-grid">
                 <div class="card card-despesas">
@@ -449,16 +442,16 @@
             </div>
         </div>
 
-        <!-- Conteúdo Anual -->
         <div id="tabAnual" style="display: none;">
             <div class="card">
-                <h2>📈 Total Investido por Ano</h2>
+                <h2>📈 Visão Anual Completa</h2>
                 <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
                     <input type="number" id="anoAnalise" value="2024" step="1">
                     <button id="btnAnalisar">Analisar</button>
                 </div>
                 <div id="resumoAnual" class="stats"></div>
                 <canvas id="graficoAnualInvestimentos" style="margin-top: 30px;"></canvas>
+                <div id="detalhesAno"></div>
             </div>
         </div>
     </div>
@@ -466,7 +459,6 @@
     <div id="loading" class="loading">🔄 Sincronizando com a nuvem...</div>
 
     <script>
-        // Configuração do Supabase
         let supabaseClient = null;
         let modoOnline = false;
         let dadosCompletos = {};
@@ -474,7 +466,6 @@
         let despesas = [], receitas = [], investimentos = [];
         let graficoDespesas, graficoReceitas, graficoAnual;
 
-        // Inicialização
         async function init() {
             const savedUrl = localStorage.getItem('supabaseUrl');
             const savedKey = localStorage.getItem('supabaseKey');
@@ -488,7 +479,6 @@
                 document.getElementById('cloudStatusBar').style.display = 'flex';
                 document.getElementById('cloudLed').className = 'led';
                 document.getElementById('cloudStatusText').innerHTML = '⚠️ Configure a nuvem para começar';
-                // Mesmo sem nuvem, criar dados vazios
                 dadosCompletos = {};
                 carregarMesAtual();
             }
@@ -502,7 +492,6 @@
             try {
                 supabaseClient = window.supabase.createClient(url, key);
                 modoOnline = true;
-                
                 await carregarDaNuvem();
                 
                 document.getElementById('setupBox').style.display = 'none';
@@ -533,7 +522,6 @@
             
             localStorage.setItem('supabaseUrl', url);
             localStorage.setItem('supabaseKey', key);
-            
             await conectarSupabase(url, key);
         }
 
@@ -605,7 +593,6 @@
             }
         }
 
-        // Trocar de mês
         function trocarMes() {
             const ano = document.getElementById('selectAno').value;
             const mes = document.getElementById('selectMes').value;
@@ -641,7 +628,6 @@
             const ano = data.getFullYear();
             const chave = `${ano}-${mes}`;
             
-            // Atualizar os selects
             document.getElementById('selectMes').value = mes;
             document.getElementById('selectAno').value = ano;
             
@@ -665,7 +651,6 @@
         }
 
         function atualizarListas() {
-            // Despesas
             const listaDespesas = document.getElementById('listaDespesas');
             if (listaDespesas) {
                 listaDespesas.innerHTML = '';
@@ -686,7 +671,6 @@
                 });
             }
             
-            // Receitas
             const listaReceitas = document.getElementById('listaReceitas');
             if (listaReceitas) {
                 listaReceitas.innerHTML = '';
@@ -707,7 +691,6 @@
                 });
             }
             
-            // Investimentos
             const listaInvestimentos = document.getElementById('listaInvestimentos');
             if (listaInvestimentos) {
                 listaInvestimentos.innerHTML = '';
@@ -821,121 +804,43 @@
         }
 
         function atualizarVisaoAnual() {
-    const ano = document.getElementById('anoAnalise').value;
-    const investimentosPorMes = {};
-    let totalAno = 0;
-    let totalReceitasAno = 0;
-    let totalDespesasAno = 0;
-    
-    // Para cada mês do ano (01 a 12)
-    for (let mes = 1; mes <= 12; mes++) {
-        const mesStr = String(mes).padStart(2, '0');
-        const chave = `${ano}-${mesStr}`;
-        
-        if (dadosCompletos[chave]) {
-            // Investimentos do mês
-            const investimentosMes = dadosCompletos[chave].investimentos || [];
-            const totalInvestimentosMes = investimentosMes.reduce((s, i) => s + i.valor, 0);
-            investimentosPorMes[chave] = totalInvestimentosMes;
-            totalAno += totalInvestimentosMes;
+            const ano = document.getElementById('anoAnalise').value;
+            const investimentosPorMes = {};
+            let totalAno = 0;
+            let totalReceitasAno = 0;
+            let totalDespesasAno = 0;
             
-            // Receitas e Despesas do mês para o gráfico
-            const receitasMes = dadosCompletos[chave].receitas || [];
-            const despesasMes = dadosCompletos[chave].despesas || [];
-            totalReceitasAno += receitasMes.reduce((s, i) => s + i.valor, 0);
-            totalDespesasAno += despesasMes.reduce((s, i) => s + i.valor, 0);
-        } else {
-            investimentosPorMes[chave] = 0;
-        }
-    }
-    
-    // Calcular saldo anual
-    const saldoAnual = totalReceitasAno - totalDespesasAno;
-    
-    // Atualizar resumo anual
-    document.getElementById('resumoAnual').innerHTML = `
-        <div class="stat-card"><h4>Total Investido</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
-        <div class="stat-card"><h4>Média Mensal Investido</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
-        <div class="stat-card"><h4>Total Receitas</h4><div>R$ ${totalReceitasAno.toFixed(2)}</div></div>
-        <div class="stat-card"><h4>Total Despesas</h4><div>R$ ${totalDespesasAno.toFixed(2)}</div></div>
-        <div class="stat-card"><h4>Saldo Anual</h4><div>R$ ${saldoAnual.toFixed(2)}</div></div>
-    `;
-    
-    // Gráfico de barras - Investimentos por mês
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const valoresInvestimentos = meses.map((_, i) => {
-        const chave = `${ano}-${String(i+1).padStart(2,'0')}`;
-        return investimentosPorMes[chave] || 0;
-    });
-    
-    const graficoAnualEl = document.getElementById('graficoAnualInvestimentos');
-    if (graficoAnualEl) {
-        if (graficoAnual) graficoAnual.destroy();
-        graficoAnual = new Chart(graficoAnualEl, {
-            type: 'bar',
-            data: { 
-                labels: meses, 
-                datasets: [{ 
-                    label: 'Investimentos (R$)', 
-                    data: valoresInvestimentos, 
-                    backgroundColor: '#f39c12',
-                    borderRadius: 8
-                }] 
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: `Investimentos por Mês - ${ano}` }
-                },
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
+            for (let mes = 1; mes <= 12; mes++) {
+                const mesStr = String(mes).padStart(2, '0');
+                const chave = `${ano}-${mesStr}`;
+                
+                if (dadosCompletos[chave]) {
+                    const investimentosMes = dadosCompletos[chave].investimentos || [];
+                    const totalInvestimentosMes = investimentosMes.reduce((s, i) => s + i.valor, 0);
+                    investimentosPorMes[chave] = totalInvestimentosMes;
+                    totalAno += totalInvestimentosMes;
+                    
+                    const receitasMes = dadosCompletos[chave].receitas || [];
+                    const despesasMes = dadosCompletos[chave].despesas || [];
+                    totalReceitasAno += receitasMes.reduce((s, i) => s + i.valor, 0);
+                    totalDespesasAno += despesasMes.reduce((s, i) => s + i.valor, 0);
+                } else {
+                    investimentosPorMes[chave] = 0;
                 }
             }
-        });
-    }
-    
-    // Adicionar detalhes por mês
-    const detalhesAno = document.getElementById('detalhesAno');
-    if (detalhesAno) {
-        let detalhesHTML = '<h3 style="margin-top: 20px;">📋 Detalhamento Mensal</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">';
-        
-        for (let mes = 1; mes <= 12; mes++) {
-            const mesStr = String(mes).padStart(2, '0');
-            const chave = `${ano}-${mesStr}`;
-            const dadosMes = dadosCompletos[chave] || { despesas: [], receitas: [], investimentos: [] };
             
-            const totalReceitas = (dadosMes.receitas || []).reduce((s, i) => s + i.valor, 0);
-            const totalDespesas = (dadosMes.despesas || []).reduce((s, i) => s + i.valor, 0);
-            const totalInvestimentos = (dadosMes.investimentos || []).reduce((s, i) => s + i.valor, 0);
-            const saldoMes = totalReceitas - totalDespesas;
-            
-            detalhesHTML += `
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
-                    <h4 style="color: #667eea; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
-                    <div style="font-size: 0.9em;">
-                        <div>💰 Receitas: <strong style="color: #27ae60;">R$ ${totalReceitas.toFixed(2)}</strong></div>
-                        <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
-                        <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
-                        <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestimentos.toFixed(2)}</strong></div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        detalhesHTML += '</div>';
-        detalhesAno.innerHTML = detalhesHTML;
-    }
-}
-            });
+            const saldoAnual = totalReceitasAno - totalDespesasAno;
             
             document.getElementById('resumoAnual').innerHTML = `
-                <div class="stat-card"><h4>Total Investido no Ano</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
-                <div class="stat-card"><h4>Média Mensal</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Total Investido</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Média Mensal Investido</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Total Receitas</h4><div>R$ ${totalReceitasAno.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Total Despesas</h4><div>R$ ${totalDespesasAno.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Saldo Anual</h4><div>R$ ${saldoAnual.toFixed(2)}</div></div>
             `;
             
-            const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-            const valores = meses.map((_, i) => {
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const valoresInvestimentos = meses.map((_, i) => {
                 const chave = `${ano}-${String(i+1).padStart(2,'0')}`;
                 return investimentosPorMes[chave] || 0;
             });
@@ -945,8 +850,57 @@
                 if (graficoAnual) graficoAnual.destroy();
                 graficoAnual = new Chart(graficoAnualEl, {
                     type: 'bar',
-                    data: { labels: meses, datasets: [{ label: 'Investimentos (R$)', data: valores, backgroundColor: '#f39c12' }] }
+                    data: { 
+                        labels: meses, 
+                        datasets: [{ 
+                            label: 'Investimentos (R$)', 
+                            data: valoresInvestimentos, 
+                            backgroundColor: '#f39c12',
+                            borderRadius: 8
+                        }] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: `Investimentos por Mês - ${ano}` }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
+                        }
+                    }
                 });
+            }
+            
+            const detalhesAno = document.getElementById('detalhesAno');
+            if (detalhesAno) {
+                let detalhesHTML = '<h3>📋 Detalhamento Mensal</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">';
+                
+                for (let mes = 1; mes <= 12; mes++) {
+                    const mesStr = String(mes).padStart(2, '0');
+                    const chave = `${ano}-${mesStr}`;
+                    const dadosMes = dadosCompletos[chave] || { despesas: [], receitas: [], investimentos: [] };
+                    
+                    const totalReceitas = (dadosMes.receitas || []).reduce((s, i) => s + i.valor, 0);
+                    const totalDespesas = (dadosMes.despesas || []).reduce((s, i) => s + i.valor, 0);
+                    const totalInvestimentos = (dadosMes.investimentos || []).reduce((s, i) => s + i.valor, 0);
+                    const saldoMes = totalReceitas - totalDespesas;
+                    
+                    detalhesHTML += `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <h4 style="color: #667eea; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
+                            <div style="font-size: 0.9em;">
+                                <div>💰 Receitas: <strong style="color: #27ae60;">R$ ${totalReceitas.toFixed(2)}</strong></div>
+                                <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
+                                <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
+                                <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestimentos.toFixed(2)}</strong></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                detalhesHTML += '</div>';
+                detalhesAno.innerHTML = detalhesHTML;
             }
         }
 
@@ -1030,7 +984,6 @@
             document.getElementById('tabAnualBtn').addEventListener('click', () => mostrarTab('anual'));
             document.getElementById('btnTrocarMes').addEventListener('click', trocarMes);
             
-            // Formulários
             document.getElementById('formDespesa').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const descricao = document.getElementById('descDespesa').value;
@@ -1071,7 +1024,6 @@
             });
         }
 
-        // Iniciar
         init();
     </script>
 </body>
