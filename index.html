@@ -294,6 +294,20 @@
             margin-bottom: 10px;
             border-radius: 8px;
         }
+
+        /* Melhorias para visão anual */
+#detalhesAno {
+    margin-top: 20px;
+}
+
+#detalhesAno h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#resumoAnual {
+    margin-bottom: 20px;
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -807,16 +821,112 @@
         }
 
         function atualizarVisaoAnual() {
-            const ano = document.getElementById('anoAnalise').value;
-            const investimentosPorMes = {};
-            let totalAno = 0;
+    const ano = document.getElementById('anoAnalise').value;
+    const investimentosPorMes = {};
+    let totalAno = 0;
+    let totalReceitasAno = 0;
+    let totalDespesasAno = 0;
+    
+    // Para cada mês do ano (01 a 12)
+    for (let mes = 1; mes <= 12; mes++) {
+        const mesStr = String(mes).padStart(2, '0');
+        const chave = `${ano}-${mesStr}`;
+        
+        if (dadosCompletos[chave]) {
+            // Investimentos do mês
+            const investimentosMes = dadosCompletos[chave].investimentos || [];
+            const totalInvestimentosMes = investimentosMes.reduce((s, i) => s + i.valor, 0);
+            investimentosPorMes[chave] = totalInvestimentosMes;
+            totalAno += totalInvestimentosMes;
             
-            Object.keys(dadosCompletos).forEach(chave => {
-                if (chave.startsWith(ano)) {
-                    const totalMes = (dadosCompletos[chave].investimentos || []).reduce((s,i) => s + i.valor, 0);
-                    investimentosPorMes[chave] = totalMes;
-                    totalAno += totalMes;
+            // Receitas e Despesas do mês para o gráfico
+            const receitasMes = dadosCompletos[chave].receitas || [];
+            const despesasMes = dadosCompletos[chave].despesas || [];
+            totalReceitasAno += receitasMes.reduce((s, i) => s + i.valor, 0);
+            totalDespesasAno += despesasMes.reduce((s, i) => s + i.valor, 0);
+        } else {
+            investimentosPorMes[chave] = 0;
+        }
+    }
+    
+    // Calcular saldo anual
+    const saldoAnual = totalReceitasAno - totalDespesasAno;
+    
+    // Atualizar resumo anual
+    document.getElementById('resumoAnual').innerHTML = `
+        <div class="stat-card"><h4>Total Investido</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
+        <div class="stat-card"><h4>Média Mensal Investido</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
+        <div class="stat-card"><h4>Total Receitas</h4><div>R$ ${totalReceitasAno.toFixed(2)}</div></div>
+        <div class="stat-card"><h4>Total Despesas</h4><div>R$ ${totalDespesasAno.toFixed(2)}</div></div>
+        <div class="stat-card"><h4>Saldo Anual</h4><div>R$ ${saldoAnual.toFixed(2)}</div></div>
+    `;
+    
+    // Gráfico de barras - Investimentos por mês
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const valoresInvestimentos = meses.map((_, i) => {
+        const chave = `${ano}-${String(i+1).padStart(2,'0')}`;
+        return investimentosPorMes[chave] || 0;
+    });
+    
+    const graficoAnualEl = document.getElementById('graficoAnualInvestimentos');
+    if (graficoAnualEl) {
+        if (graficoAnual) graficoAnual.destroy();
+        graficoAnual = new Chart(graficoAnualEl, {
+            type: 'bar',
+            data: { 
+                labels: meses, 
+                datasets: [{ 
+                    label: 'Investimentos (R$)', 
+                    data: valoresInvestimentos, 
+                    backgroundColor: '#f39c12',
+                    borderRadius: 8
+                }] 
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: `Investimentos por Mês - ${ano}` }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
                 }
+            }
+        });
+    }
+    
+    // Adicionar detalhes por mês
+    const detalhesAno = document.getElementById('detalhesAno');
+    if (detalhesAno) {
+        let detalhesHTML = '<h3 style="margin-top: 20px;">📋 Detalhamento Mensal</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">';
+        
+        for (let mes = 1; mes <= 12; mes++) {
+            const mesStr = String(mes).padStart(2, '0');
+            const chave = `${ano}-${mesStr}`;
+            const dadosMes = dadosCompletos[chave] || { despesas: [], receitas: [], investimentos: [] };
+            
+            const totalReceitas = (dadosMes.receitas || []).reduce((s, i) => s + i.valor, 0);
+            const totalDespesas = (dadosMes.despesas || []).reduce((s, i) => s + i.valor, 0);
+            const totalInvestimentos = (dadosMes.investimentos || []).reduce((s, i) => s + i.valor, 0);
+            const saldoMes = totalReceitas - totalDespesas;
+            
+            detalhesHTML += `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
+                    <div style="font-size: 0.9em;">
+                        <div>💰 Receitas: <strong style="color: #27ae60;">R$ ${totalReceitas.toFixed(2)}</strong></div>
+                        <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
+                        <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
+                        <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestimentos.toFixed(2)}</strong></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        detalhesHTML += '</div>';
+        detalhesAno.innerHTML = detalhesHTML;
+    }
+}
             });
             
             document.getElementById('resumoAnual').innerHTML = `
