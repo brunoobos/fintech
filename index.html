@@ -43,11 +43,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .setup-box h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
         .setup-box input {
             width: 80%;
             max-width: 500px;
@@ -140,6 +135,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -306,8 +302,34 @@
         #resumoAnual {
             margin-bottom: 20px;
         }
+
+        .ano-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .view-type-btn {
+            background: #e0e0e0;
+            color: #333;
+            width: auto;
+            padding: 8px 15px;
+        }
+
+        .view-type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .porcentagem {
+            font-size: 0.8em;
+            color: #f39c12;
+            margin-top: 5px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -369,6 +391,7 @@
         <div class="tabs" id="tabs">
             <button id="tabMensalBtn" class="tab active">📅 Mensal</button>
             <button id="tabAnualBtn" class="tab">📊 Anual</button>
+            <button id="tabAcumuladoBtn" class="tab">📈 Acumulado Geral</button>
         </div>
 
         <div id="tabMensal">
@@ -445,13 +468,22 @@
         <div id="tabAnual" style="display: none;">
             <div class="card">
                 <h2>📈 Visão Anual Completa</h2>
-                <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
+                <div class="ano-selector">
                     <input type="number" id="anoAnalise" value="2024" step="1">
                     <button id="btnAnalisar">Analisar</button>
                 </div>
                 <div id="resumoAnual" class="stats"></div>
                 <canvas id="graficoAnualInvestimentos" style="margin-top: 30px;"></canvas>
                 <div id="detalhesAno"></div>
+            </div>
+        </div>
+
+        <div id="tabAcumulado" style="display: none;">
+            <div class="card">
+                <h2>📈 Visão Acumulada Geral</h2>
+                <div class="stats" id="resumoAcumulado"></div>
+                <canvas id="graficoAcumulado" style="margin-top: 30px;"></canvas>
+                <div id="detalhesAcumulado"></div>
             </div>
         </div>
     </div>
@@ -464,7 +496,7 @@
         let dadosCompletos = {};
         let mesAtual = "";
         let despesas = [], receitas = [], investimentos = [];
-        let graficoDespesas, graficoReceitas, graficoAnual;
+        let graficoDespesas, graficoReceitas, graficoAnual, graficoAcumulado;
 
         async function init() {
             const savedUrl = localStorage.getItem('supabaseUrl');
@@ -786,21 +818,48 @@
         function mostrarTab(tab) {
             const tabMensal = document.getElementById('tabMensal');
             const tabAnual = document.getElementById('tabAnual');
+            const tabAcumulado = document.getElementById('tabAcumulado');
             const tabMensalBtn = document.getElementById('tabMensalBtn');
             const tabAnualBtn = document.getElementById('tabAnualBtn');
+            const tabAcumuladoBtn = document.getElementById('tabAcumuladoBtn');
+            
+            tabMensal.style.display = 'none';
+            tabAnual.style.display = 'none';
+            tabAcumulado.style.display = 'none';
+            tabMensalBtn.classList.remove('active');
+            tabAnualBtn.classList.remove('active');
+            tabAcumuladoBtn.classList.remove('active');
             
             if (tab === 'mensal') {
                 tabMensal.style.display = 'block';
-                tabAnual.style.display = 'none';
                 tabMensalBtn.classList.add('active');
-                tabAnualBtn.classList.remove('active');
-            } else {
-                tabMensal.style.display = 'none';
+            } else if (tab === 'anual') {
                 tabAnual.style.display = 'block';
-                tabMensalBtn.classList.remove('active');
                 tabAnualBtn.classList.add('active');
                 atualizarVisaoAnual();
+            } else {
+                tabAcumulado.style.display = 'block';
+                tabAcumuladoBtn.classList.add('active');
+                atualizarVisaoAcumulada();
             }
+        }
+
+        // Função para calcular linha de tendência
+        function calcularLinhaTendencia(dados) {
+            const n = dados.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            
+            for (let i = 0; i < n; i++) {
+                sumX += i;
+                sumY += dados[i];
+                sumXY += i * dados[i];
+                sumX2 += i * i;
+            }
+            
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+            
+            return dados.map((_, i) => slope * i + intercept);
         }
 
         function atualizarVisaoAnual() {
@@ -845,6 +904,8 @@
                 return investimentosPorMes[chave] || 0;
             });
             
+            const linhaTendencia = calcularLinhaTendencia(valoresInvestimentos);
+            
             const graficoAnualEl = document.getElementById('graficoAnualInvestimentos');
             if (graficoAnualEl) {
                 if (graficoAnual) graficoAnual.destroy();
@@ -852,18 +913,32 @@
                     type: 'bar',
                     data: { 
                         labels: meses, 
-                        datasets: [{ 
-                            label: 'Investimentos (R$)', 
-                            data: valoresInvestimentos, 
-                            backgroundColor: '#f39c12',
-                            borderRadius: 8
-                        }] 
+                        datasets: [
+                            { 
+                                label: 'Investimentos (R$)', 
+                                data: valoresInvestimentos, 
+                                backgroundColor: '#f39c12',
+                                borderRadius: 8,
+                                type: 'bar'
+                            },
+                            { 
+                                label: 'Tendência', 
+                                data: linhaTendencia, 
+                                type: 'line',
+                                borderColor: '#e74c3c',
+                                borderWidth: 3,
+                                fill: false,
+                                tension: 0.1,
+                                pointRadius: 0,
+                                pointHoverRadius: 0
+                            }
+                        ] 
                     },
                     options: {
                         responsive: true,
                         plugins: {
                             legend: { position: 'top' },
-                            title: { display: true, text: `Investimentos por Mês - ${ano}` }
+                            title: { display: true, text: `Investimentos por Mês - ${ano} (com linha de tendência)` }
                         },
                         scales: {
                             y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
@@ -886,6 +961,9 @@
                     const totalInvestimentos = (dadosMes.investimentos || []).reduce((s, i) => s + i.valor, 0);
                     const saldoMes = totalReceitas - totalDespesas;
                     
+                    // Calcular porcentagem do investimento em relação à receita
+                    const porcentagemInvestimento = totalReceitas > 0 ? (totalInvestimentos / totalReceitas * 100) : 0;
+                    
                     detalhesHTML += `
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
                             <h4 style="color: #667eea; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
@@ -894,6 +972,7 @@
                                 <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
                                 <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
                                 <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestimentos.toFixed(2)}</strong></div>
+                                <div class="porcentagem">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita</div>
                             </div>
                         </div>
                     `;
@@ -901,6 +980,140 @@
                 
                 detalhesHTML += '</div>';
                 detalhesAno.innerHTML = detalhesHTML;
+            }
+        }
+
+        function atualizarVisaoAcumulada() {
+            const investimentosAcumulados = {};
+            const receitasAcumuladas = {};
+            const despesasAcumuladas = {};
+            let todosAnos = [];
+            
+            // Coletar todos os anos disponíveis
+            Object.keys(dadosCompletos).forEach(chave => {
+                const ano = chave.split('-')[0];
+                if (!todosAnos.includes(ano)) {
+                    todosAnos.push(ano);
+                }
+            });
+            
+            todosAnos.sort();
+            
+            let totalGeralInvestido = 0;
+            let totalGeralReceitas = 0;
+            let totalGeralDespesas = 0;
+            
+            // Calcular totais por ano
+            todosAnos.forEach(ano => {
+                let totalInvestidoAno = 0;
+                let totalReceitasAno = 0;
+                let totalDespesasAno = 0;
+                
+                for (let mes = 1; mes <= 12; mes++) {
+                    const mesStr = String(mes).padStart(2, '0');
+                    const chave = `${ano}-${mesStr}`;
+                    
+                    if (dadosCompletos[chave]) {
+                        const investimentosMes = dadosCompletos[chave].investimentos || [];
+                        totalInvestidoAno += investimentosMes.reduce((s, i) => s + i.valor, 0);
+                        
+                        const receitasMes = dadosCompletos[chave].receitas || [];
+                        totalReceitasAno += receitasMes.reduce((s, i) => s + i.valor, 0);
+                        
+                        const despesasMes = dadosCompletos[chave].despesas || [];
+                        totalDespesasAno += despesasMes.reduce((s, i) => s + i.valor, 0);
+                    }
+                }
+                
+                investimentosAcumulados[ano] = totalInvestidoAno;
+                receitasAcumuladas[ano] = totalReceitasAno;
+                despesasAcumuladas[ano] = totalDespesasAno;
+                totalGeralInvestido += totalInvestidoAno;
+                totalGeralReceitas += totalReceitasAno;
+                totalGeralDespesas += totalDespesasAno;
+            });
+            
+            const saldoGeral = totalGeralReceitas - totalGeralDespesas;
+            
+            document.getElementById('resumoAcumulado').innerHTML = `
+                <div class="stat-card"><h4>Total Investido Geral</h4><div>R$ ${totalGeralInvestido.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Total Receitas Geral</h4><div>R$ ${totalGeralReceitas.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Total Despesas Geral</h4><div>R$ ${totalGeralDespesas.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Saldo Geral</h4><div>R$ ${saldoGeral.toFixed(2)}</div></div>
+                <div class="stat-card"><h4>Média Investimento/Ano</h4><div>R$ ${(totalGeralInvestido/todosAnos.length).toFixed(2)}</div></div>
+            `;
+            
+            const valoresInvestimentos = todosAnos.map(ano => investimentosAcumulados[ano] || 0);
+            const linhaTendencia = calcularLinhaTendencia(valoresInvestimentos);
+            
+            const graficoAcumuladoEl = document.getElementById('graficoAcumulado');
+            if (graficoAcumuladoEl) {
+                if (graficoAcumulado) graficoAcumulado.destroy();
+                graficoAcumulado = new Chart(graficoAcumuladoEl, {
+                    type: 'bar',
+                    data: { 
+                        labels: todosAnos, 
+                        datasets: [
+                            { 
+                                label: 'Investimentos por Ano (R$)', 
+                                data: valoresInvestimentos, 
+                                backgroundColor: '#f39c12',
+                                borderRadius: 8,
+                                type: 'bar'
+                            },
+                            { 
+                                label: 'Tendência', 
+                                data: linhaTendencia, 
+                                type: 'line',
+                                borderColor: '#e74c3c',
+                                borderWidth: 3,
+                                fill: false,
+                                tension: 0.1,
+                                pointRadius: 0,
+                                pointHoverRadius: 0
+                            }
+                        ] 
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Investimentos Acumulados por Ano (com linha de tendência)' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
+                        }
+                    }
+                });
+            }
+            
+            const detalhesAcumulado = document.getElementById('detalhesAcumulado');
+            if (detalhesAcumulado) {
+                let detalhesHTML = '<h3>📋 Detalhamento por Ano</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">';
+                
+                todosAnos.forEach(ano => {
+                    const totalInvestido = investimentosAcumulados[ano] || 0;
+                    const totalReceitas = receitasAcumuladas[ano] || 0;
+                    const totalDespesas = despesasAcumuladas[ano] || 0;
+                    const saldoAno = totalReceitas - totalDespesas;
+                    const porcentagemInvestimento = totalReceitas > 0 ? (totalInvestido / totalReceitas * 100) : 0;
+                    
+                    detalhesHTML += `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <h4 style="color: #667eea; margin-bottom: 10px;">📅 Ano ${ano}</h4>
+                            <div style="font-size: 0.9em;">
+                                <div>💰 Receitas: <strong style="color: #27ae60;">R$ ${totalReceitas.toFixed(2)}</strong></div>
+                                <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
+                                <div>📊 Saldo: <strong style="color: ${saldoAno >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoAno.toFixed(2)}</strong></div>
+                                <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestido.toFixed(2)}</strong></div>
+                                <div class="porcentagem">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita anual</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                detalhesHTML += '</div>';
+                detalhesAcumulado.innerHTML = detalhesHTML;
             }
         }
 
@@ -982,6 +1195,7 @@
             document.getElementById('linkTutorial').addEventListener('click', mostrarTutorial);
             document.getElementById('tabMensalBtn').addEventListener('click', () => mostrarTab('mensal'));
             document.getElementById('tabAnualBtn').addEventListener('click', () => mostrarTab('anual'));
+            document.getElementById('tabAcumuladoBtn').addEventListener('click', () => mostrarTab('acumulado'));
             document.getElementById('btnTrocarMes').addEventListener('click', trocarMes);
             
             document.getElementById('formDespesa').addEventListener('submit', (e) => {
