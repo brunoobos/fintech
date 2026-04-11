@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             padding: 20px;
             min-height: 100vh;
         }
@@ -32,15 +32,29 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #90e0ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .setup-box {
-            background: white;
+            background: #1e2746;
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .setup-box h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .setup-box p {
+            color: #aaa;
         }
 
         .setup-box input {
@@ -48,13 +62,20 @@
             max-width: 500px;
             padding: 12px;
             margin: 10px 0;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #2a3659;
             border-radius: 8px;
             font-size: 1em;
+            background: #0f1429;
+            color: white;
+        }
+
+        .setup-box input:focus {
+            outline: none;
+            border-color: #90e0ef;
         }
 
         .setup-box button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -65,7 +86,7 @@
         }
 
         .cloud-status-bar {
-            background: white;
+            background: #1e2746;
             border-radius: 15px;
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -73,13 +94,15 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .status-indicator {
             display: flex;
             align-items: center;
             gap: 10px;
+            color: white;
         }
 
         .led {
@@ -102,7 +125,7 @@
         }
 
         .mes-selector {
-            background: white;
+            background: #1e2746;
             border-radius: 15px;
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -111,20 +134,23 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .mes-selector select, .mes-selector input {
             padding: 8px 15px;
             border-radius: 8px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #2a3659;
             font-size: 0.9em;
+            background: #0f1429;
+            color: white;
         }
 
         .mes-selector button {
             width: auto;
             padding: 8px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -139,17 +165,22 @@
         }
 
         .tab {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 10px;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         .tab.active {
-            background: white;
-            color: #667eea;
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            color: white;
         }
 
         .cards-grid {
@@ -160,39 +191,53 @@
         }
 
         .card {
-            background: white;
+            background: #1e2746;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .card h2 {
             margin-bottom: 20px;
             padding-left: 15px;
             border-left: 4px solid;
+            color: white;
         }
 
         .card-despesas h2 { border-left-color: #e74c3c; }
-        .card-receitas h2 { border-left-color: #27ae60; }
-        .card-saldo h2 { border-left-color: #3498db; }
+        .card-receitas h2 { border-left-color: #3498db; }
+        .card-saldo h2 { border-left-color: #2ecc71; }
         .card-investimentos h2 { border-left-color: #f39c12; }
 
         input, select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #2a3659;
             border-radius: 8px;
             margin-bottom: 10px;
+            background: #0f1429;
+            color: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00b4d8;
         }
 
         button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
             color: white;
             border: none;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
         }
 
         .lista-itens {
@@ -202,13 +247,14 @@
         }
 
         .item {
-            background: #f8f9fa;
+            background: #0f1429;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: white;
         }
 
         .delete-btn {
@@ -218,8 +264,13 @@
             font-size: 0.8em;
         }
 
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
         .saldo-principal {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -240,7 +291,7 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
@@ -248,10 +299,16 @@
         }
 
         .graficos-section {
-            background: white;
+            background: #1e2746;
             border-radius: 15px;
             padding: 25px;
             margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .graficos-section h2 {
+            color: white;
+            margin-bottom: 20px;
         }
 
         .graficos-grid {
@@ -270,7 +327,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -284,10 +341,11 @@
         }
         
         .investimento-item {
-            background: #f8f9fa;
+            background: #0f1429;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 8px;
+            color: white;
         }
 
         #detalhesAno, #detalhesAcumulado {
@@ -295,7 +353,7 @@
         }
 
         #detalhesAno h3, #detalhesAcumulado h3 {
-            color: #333;
+            color: white;
             margin-bottom: 10px;
         }
 
@@ -310,10 +368,55 @@
             margin-bottom: 20px;
         }
 
+        .ano-selector input {
+            width: 100px;
+        }
+
         .porcentagem {
-            font-size: 0.8em;
+            font-size: 0.85em;
+            margin-top: 8px;
+            padding: 5px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .porcentagem-boa {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border-left: 3px solid #2ecc71;
+        }
+
+        .porcentagem-boa strong {
+            color: #2ecc71;
+        }
+
+        .porcentagem-normal {
             color: #f39c12;
-            margin-top: 5px;
+        }
+
+        .destaque {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 8px;
+            display: inline-block;
+        }
+
+        .destaque-star::after {
+            content: " ⭐";
+            font-size: 1.1em;
+        }
+
+        .destaque-check::after {
+            content: " ✓✓";
+            font-size: 1.1em;
+        }
+
+        .destaque-fire::after {
+            content: " 🔥";
+            font-size: 1.1em;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -332,8 +435,8 @@
             <input type="text" id="supabaseUrl" placeholder="URL do Supabase (ex: https://xyz.supabase.co)">
             <input type="text" id="supabaseKey" placeholder="Anon Key (pública)">
             <button id="btnSalvarConfig">✅ Salvar e Conectar</button>
-            <p style="margin-top: 20px; font-size: 0.8em; color: #666;">
-                🔒 Dados criptografados e seguros. <a href="#" id="linkTutorial">Como criar conta grátis?</a>
+            <p style="margin-top: 20px; font-size: 0.8em; color: #aaa;">
+                🔒 Dados criptografados e seguros. <a href="#" id="linkTutorial" style="color: #00b4d8;">Como criar conta grátis?</a>
             </p>
         </div>
 
@@ -352,7 +455,7 @@
 
         <div class="mes-selector">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="font-weight: bold; color: #333;">📅 Período:</span>
+                <span style="font-weight: bold; color: white;">📅 Período:</span>
                 <select id="selectMes">
                     <option value="01">Janeiro</option>
                     <option value="02">Fevereiro</option>
@@ -370,7 +473,7 @@
                 <input type="number" id="selectAno" value="2024" step="1" style="width: 80px;">
                 <button id="btnTrocarMes">Ir</button>
             </div>
-            <div style="font-size: 0.85em; color: #666;">
+            <div style="font-size: 0.85em; color: #aaa;">
                 💡 Dica: Selecione meses anteriores para ver seu histórico
             </div>
         </div>
@@ -384,7 +487,7 @@
         <div id="tabMensal">
             <div class="cards-grid">
                 <div class="card card-despesas">
-                    <h2>💸 Despesas</h2>
+                    <h2>💸 Despesas <span style="font-size: 0.8em; color: #e74c3c;">(Vermelho)</span></h2>
                     <form id="formDespesa">
                         <input type="text" id="descDespesa" placeholder="Descrição" required>
                         <input type="number" id="valorDespesa" step="0.01" placeholder="Valor" required>
@@ -394,13 +497,13 @@
                             <option>Saúde</option><option>Educação</option>
                             <option>Outros</option>
                         </select>
-                        <button type="submit">➕ Adicionar</button>
+                        <button type="submit" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">➕ Adicionar Despesa</button>
                     </form>
                     <div class="lista-itens" id="listaDespesas"></div>
                 </div>
 
                 <div class="card card-receitas">
-                    <h2>💵 Receitas</h2>
+                    <h2>💵 Receitas <span style="font-size: 0.8em; color: #3498db;">(Azul)</span></h2>
                     <form id="formReceita">
                         <input type="text" id="descReceita" placeholder="Descrição" required>
                         <input type="number" id="valorReceita" step="0.01" placeholder="Valor" required>
@@ -409,7 +512,7 @@
                             <option>Investimentos</option><option>Presentes</option>
                             <option>Outros</option>
                         </select>
-                        <button type="submit">➕ Adicionar</button>
+                        <button type="submit" style="background: linear-gradient(135deg, #3498db, #2980b9);">➕ Adicionar Receita</button>
                     </form>
                     <div class="lista-itens" id="listaReceitas"></div>
                 </div>
@@ -421,8 +524,8 @@
                         <div class="saldo-valor" id="saldoAtual">R$ 0,00</div>
                     </div>
                     <div class="stats">
-                        <div class="stat-card"><h4>Receitas</h4><div id="totalReceitas">R$ 0,00</div></div>
-                        <div class="stat-card"><h4>Despesas</h4><div id="totalDespesas">R$ 0,00</div></div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #3498db, #2980b9);"><h4>Receitas</h4><div id="totalReceitas">R$ 0,00</div></div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><h4>Despesas</h4><div id="totalDespesas">R$ 0,00</div></div>
                     </div>
                 </div>
 
@@ -432,23 +535,22 @@
                         <select id="tipoInvestimento">
                             <option>FII</option><option>Previdência</option>
                             <option>Ações</option><option>CDB</option>
-                            <option>Tesouro Direto</option><option>Cripto</option>
-                            <option>Ações Americanas</option><option>Poupança</option>
+                            <option>Tesouro</option><option>Cripto</option>
                         </select>
                         <input type="number" id="valorInvestimento" step="0.01" placeholder="Valor" required>
                         <input type="text" id="descInvestimento" placeholder="Descrição">
-                        <button type="submit">💹 Adicionar</button>
+                        <button type="submit" style="background: linear-gradient(135deg, #f39c12, #e67e22);">💹 Adicionar Investimento</button>
                     </form>
                     <div class="lista-itens" id="listaInvestimentos"></div>
-                    <div class="stat-card"><h4>Total Investido</h4><div id="totalInvestido">R$ 0,00</div></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f39c12, #e67e22);"><h4>Total Investido</h4><div id="totalInvestido">R$ 0,00</div></div>
                 </div>
             </div>
 
             <div class="graficos-section">
                 <h2>📊 Gráficos</h2>
                 <div class="graficos-grid">
-                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center">Despesas por Categoria</p></div>
-                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center">Receitas por Categoria</p></div>
+                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center; color: white;">Despesas por Categoria</p></div>
+                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center; color: white;">Receitas por Categoria</p></div>
                 </div>
             </div>
         </div>
@@ -485,6 +587,17 @@
         let mesAtual = "";
         let despesas = [], receitas = [], investimentos = [];
         let graficoDespesas, graficoReceitas, graficoAnual, graficoAcumulado;
+
+        function getDestaquePorcentagem(porcentagem) {
+            if (porcentagem >= 50) {
+                return '<span class="destaque destaque-fire">🔥 Excelente! 50%+ investido</span>';
+            } else if (porcentagem >= 30) {
+                return '<span class="destaque destaque-star">⭐ Ótimo! 30%+ investido</span>';
+            } else if (porcentagem >= 20) {
+                return '<span class="destaque destaque-check">✓ Bom! 20%+ investido</span>';
+            }
+            return '';
+        }
 
         async function init() {
             const savedUrl = localStorage.getItem('supabaseUrl');
@@ -677,8 +790,8 @@
                 despesas.forEach((item, index) => {
                     listaDespesas.innerHTML += `
                         <div class="item">
-                            <div><strong>${escapeHtml(item.descricao)}</strong><br><small>${escapeHtml(item.categoria)}</small></div>
-                            <div>-R$ ${item.valor.toFixed(2)} <button class="delete-btn" data-index="${index}" data-type="despesa">🗑️</button></div>
+                            <div><strong>${escapeHtml(item.descricao)}</strong><br><small style="color: #e74c3c;">${escapeHtml(item.categoria)}</small></div>
+                            <div style="color: #e74c3c;">-R$ ${item.valor.toFixed(2)} <button class="delete-btn" data-index="${index}" data-type="despesa">🗑️</button></div>
                         </div>
                     `;
                 });
@@ -697,8 +810,8 @@
                 receitas.forEach((item, index) => {
                     listaReceitas.innerHTML += `
                         <div class="item">
-                            <div><strong>${escapeHtml(item.descricao)}</strong><br><small>${escapeHtml(item.categoria)}</small></div>
-                            <div>+R$ ${item.valor.toFixed(2)} <button class="delete-btn" data-index="${index}" data-type="receita">🗑️</button></div>
+                            <div><strong>${escapeHtml(item.descricao)}</strong><br><small style="color: #3498db;">${escapeHtml(item.categoria)}</small></div>
+                            <div style="color: #3498db;">+R$ ${item.valor.toFixed(2)} <button class="delete-btn" data-index="${index}" data-type="receita">🗑️</button></div>
                         </div>
                     `;
                 });
@@ -717,7 +830,7 @@
                 investimentos.forEach((item, index) => {
                     listaInvestimentos.innerHTML += `
                         <div class="investimento-item">
-                            <strong>${escapeHtml(item.tipo)}</strong><br>
+                            <strong style="color: #f39c12;">${escapeHtml(item.tipo)}</strong><br>
                             R$ ${item.valor.toFixed(2)}<br>
                             ${item.descricao ? `<small>${escapeHtml(item.descricao)}</small><br>` : ''}
                             <button class="delete-btn" data-index="${index}" data-type="investimento">🗑️</button>
@@ -779,7 +892,7 @@
                     type: 'doughnut',
                     data: {
                         labels: Object.keys(receitasCat),
-                        datasets: [{ data: Object.values(receitasCat), backgroundColor: ['#27ae60','#3498db','#f39c12','#1abc9c'] }]
+                        datasets: [{ data: Object.values(receitasCat), backgroundColor: ['#3498db','#2ecc71','#f39c12','#1abc9c'] }]
                     }
                 });
             }
@@ -863,8 +976,8 @@
             document.getElementById('resumoAnual').innerHTML = `
                 <div class="stat-card"><h4>Total Investido</h4><div>R$ ${totalAno.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Média Mensal Investido</h4><div>R$ ${(totalAno/12).toFixed(2)}</div></div>
-                <div class="stat-card"><h4>Total Receitas</h4><div>R$ ${totalReceitasAno.toFixed(2)}</div></div>
-                <div class="stat-card"><h4>Total Despesas</h4><div>R$ ${totalDespesasAno.toFixed(2)}</div></div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #3498db, #2980b9);"><h4>Total Receitas</h4><div>R$ ${totalReceitasAno.toFixed(2)}</div></div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><h4>Total Despesas</h4><div>R$ ${totalDespesasAno.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Saldo Anual</h4><div>R$ ${saldoAnual.toFixed(2)}</div></div>
             `;
             
@@ -908,8 +1021,8 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: 'top' },
-                            title: { display: true, text: `Investimentos por Mês - ${ano}` },
+                            legend: { position: 'top', labels: { color: 'white' } },
+                            title: { display: true, text: `Investimentos por Mês - ${ano}`, color: 'white' },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
@@ -922,7 +1035,8 @@
                             }
                         },
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
+                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)', color: 'white' }, ticks: { color: 'white' } },
+                            x: { ticks: { color: 'white' } }
                         }
                     }
                 });
@@ -930,7 +1044,7 @@
             
             const detalhesAno = document.getElementById('detalhesAno');
             if (detalhesAno) {
-                let detalhesHTML = '<h3>📋 Detalhamento Mensal</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">';
+                let detalhesHTML = '<h3>📋 Detalhamento Mensal</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px;">';
                 
                 for (let mes = 1; mes <= 12; mes++) {
                     const mesStr = String(mes).padStart(2, '0');
@@ -943,15 +1057,28 @@
                     const saldoMes = totalReceitas - totalDespesas;
                     const porcentagemInvestimento = totalReceitas > 0 ? (totalInvestimentos / totalReceitas * 100) : 0;
                     
+                    let classePorcentagem = 'porcentagem-normal';
+                    let destaqueHtml = '';
+                    
+                    if (porcentagemInvestimento >= 50) {
+                        classePorcentagem = 'porcentagem-boa';
+                        destaqueHtml = getDestaquePorcentagem(porcentagemInvestimento);
+                    } else if (porcentagemInvestimento >= 30) {
+                        classePorcentagem = 'porcentagem-boa';
+                        destaqueHtml = getDestaquePorcentagem(porcentagemInvestimento);
+                    } else if (porcentagemInvestimento >= 20) {
+                        destaqueHtml = getDestaquePorcentagem(porcentagemInvestimento);
+                    }
+                    
                     detalhesHTML += `
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
-                            <h4 style="color: #667eea; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
-                            <div style="font-size: 0.9em;">
-                                <div>💰 Receitas: <strong style="color: #27ae60;">R$ ${totalReceitas.toFixed(2)}</strong></div>
+                        <div style="background: #0f1429; padding: 15px; border-radius: 10px; border-left: 4px solid #00b4d8;">
+                            <h4 style="color: #00b4d8; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
+                            <div style="font-size: 0.9em; color: #ccc;">
+                                <div>💰 Receitas: <strong style="color: #3498db;">R$ ${totalReceitas.toFixed(2)}</strong></div>
                                 <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
-                                <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
+                                <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#2ecc71' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
                                 <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestimentos.toFixed(2)}</strong></div>
-                                <div class="porcentagem">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita</div>
+                                <div class="porcentagem ${classePorcentagem}">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita ${destaqueHtml}</div>
                             </div>
                         </div>
                     `;
@@ -1015,8 +1142,8 @@
             
             document.getElementById('resumoAcumulado').innerHTML = `
                 <div class="stat-card"><h4>Total Investido Geral</h4><div>R$ ${totalGeralInvestido.toFixed(2)}</div></div>
-                <div class="stat-card"><h4>Total Receitas Geral</h4><div>R$ ${totalGeralReceitas.toFixed(2)}</div></div>
-                <div class="stat-card"><h4>Total Despesas Geral</h4><div>R$ ${totalGeralDespesas.toFixed(2)}</div></div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #3498db, #2980b9);"><h4>Total Receitas Geral</h4><div>R$ ${totalGeralReceitas.toFixed(2)}</div></div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><h4>Total Despesas Geral</h4><div>R$ ${totalGeralDespesas.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Saldo Geral</h4><div>R$ ${saldoGeral.toFixed(2)}</div></div>
                 <div class="stat-card"><h4>Média Investimento/Ano</h4><div>R$ ${mediaInvestimento.toFixed(2)}</div></div>
             `;
@@ -1057,8 +1184,8 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: 'top' },
-                            title: { display: true, text: 'Investimentos Acumulados por Ano' },
+                            legend: { position: 'top', labels: { color: 'white' } },
+                            title: { display: true, text: 'Investimentos Acumulados por Ano', color: 'white' },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
@@ -1071,7 +1198,8 @@
                             }
                         },
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
+                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)', color: 'white' }, ticks: { color: 'white' } },
+                            x: { ticks: { color: 'white' } }
                         }
                     }
                 });
@@ -1079,7 +1207,7 @@
             
             const detalhesAcumulado = document.getElementById('detalhesAcumulado');
             if (detalhesAcumulado) {
-                let detalhesHTML = '<h3>📋 Detalhamento por Ano</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">';
+                let detalhesHTML = '<h3>📋 Detalhamento por Ano</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px;">';
                 
                 todosAnos.forEach(ano => {
                     const totalInvestido = investimentosAcumulados[ano] || 0;
@@ -1088,15 +1216,28 @@
                     const saldoAno = totalReceitas - totalDespesas;
                     const porcentagemInvestimento = totalReceitas > 0 ? (totalInvestido / totalReceitas * 100) : 0;
                     
+                    let classePorcentagem = 'porcentagem-normal';
+                    let destaqueHtml = '';
+                    
+                    if (porcentagemInvestimento >= 50) {
+                        classePorcentagem = 'porcentagem-boa';
+                        destaqueHtml = getDestaquePorcentagem(porcentagemInvestimento);
+                    } else if (porcentagemInvestimento >= 30) {
+                        classePorcentagem = 'porcentagem-boa';
+                        destaqueHtml = getDestaquePorcentagem(porcentagemInvestimento);
+                    } else if (porcentagemInvestimento >= 20) {
+                        destaqueHtml = getDestaquePorcentagem(porcentagemInvestimento);
+                    }
+                    
                     detalhesHTML += `
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
-                            <h4 style="color: #667eea; margin-bottom: 10px;">📅 Ano ${ano}</h4>
-                            <div style="font-size: 0.9em;">
-                                <div>💰 Receitas: <strong style="color: #27ae60;">R$ ${totalReceitas.toFixed(2)}</strong></div>
+                        <div style="background: #0f1429; padding: 15px; border-radius: 10px; border-left: 4px solid #00b4d8;">
+                            <h4 style="color: #00b4d8; margin-bottom: 10px;">📅 Ano ${ano}</h4>
+                            <div style="font-size: 0.9em; color: #ccc;">
+                                <div>💰 Receitas: <strong style="color: #3498db;">R$ ${totalReceitas.toFixed(2)}</strong></div>
                                 <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
-                                <div>📊 Saldo: <strong style="color: ${saldoAno >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoAno.toFixed(2)}</strong></div>
+                                <div>📊 Saldo: <strong style="color: ${saldoAno >= 0 ? '#2ecc71' : '#e74c3c'};">R$ ${saldoAno.toFixed(2)}</strong></div>
                                 <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestido.toFixed(2)}</strong></div>
-                                <div class="porcentagem">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita anual</div>
+                                <div class="porcentagem ${classePorcentagem}">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita anual ${destaqueHtml}</div>
                             </div>
                         </div>
                     `;
