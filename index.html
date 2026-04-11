@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças na Nuvem - Sincronizado</title>
+    <title>Finanças na Nuvem - Auto Save</title>
     <style>
         * {
             margin: 0;
@@ -34,7 +34,6 @@
             margin-bottom: 10px;
         }
 
-        /* Configuração Inicial */
         .setup-box {
             background: white;
             border-radius: 15px;
@@ -107,6 +106,37 @@
             100% { opacity: 1; }
         }
 
+        /* Seletor de Mês */
+        .mes-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mes-selector select, .mes-selector input {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+
+        .mes-selector button {
+            width: auto;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
         .tabs {
             display: flex;
             gap: 10px;
@@ -151,10 +181,6 @@
         .card-receitas h2 { border-left-color: #27ae60; }
         .card-saldo h2 { border-left-color: #3498db; }
         .card-investimentos h2 { border-left-color: #f39c12; }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
 
         input, select {
             width: 100%;
@@ -268,17 +294,6 @@
             margin-bottom: 10px;
             border-radius: 8px;
         }
-
-        .config-link {
-            background: none;
-            border: none;
-            color: #667eea;
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 0.9em;
-            padding: 5px;
-            width: auto;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -290,7 +305,7 @@
             <p>Auto-save em tempo real - Acesse de qualquer lugar</p>
         </div>
 
-        <!-- Configuração Inicial (escondido se já configurado) -->
+        <!-- Configuração Inicial -->
         <div id="setupBox" class="setup-box" style="display: none;">
             <h2>🚀 Configurar Conta na Nuvem</h2>
             <p>Crie sua conta gratuita no Supabase (30 segundos)</p>
@@ -313,6 +328,32 @@
                 <button id="btnSincronizar" class="cloud-btn">🔄 Sincronizar</button>
                 <button id="btnExportar" class="cloud-btn">💾 Exportar Backup</button>
                 <button id="btnImportar" class="cloud-btn">📂 Importar Backup</button>
+            </div>
+        </div>
+
+        <!-- Seletor de Mês/Ano -->
+        <div class="mes-selector">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span style="font-weight: bold; color: #333;">📅 Período:</span>
+                <select id="selectMes">
+                    <option value="01">Janeiro</option>
+                    <option value="02">Fevereiro</option>
+                    <option value="03">Março</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Maio</option>
+                    <option value="06">Junho</option>
+                    <option value="07">Julho</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+                <input type="number" id="selectAno" value="2024" step="1" style="width: 80px;">
+                <button id="btnTrocarMes">Ir</button>
+            </div>
+            <div style="font-size: 0.85em; color: #666;">
+                💡 Dica: Selecione meses anteriores para ver seu histórico
             </div>
         </div>
 
@@ -398,7 +439,7 @@
         <div id="tabAnual" style="display: none;">
             <div class="card">
                 <h2>📈 Total Investido por Ano</h2>
-                <div style="display: flex; gap: 10px; margin: 20px 0;">
+                <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
                     <input type="number" id="anoAnalise" value="2024" step="1">
                     <button id="btnAnalisar">Analisar</button>
                 </div>
@@ -419,22 +460,23 @@
         let despesas = [], receitas = [], investimentos = [];
         let graficoDespesas, graficoReceitas, graficoAnual;
 
-        // Inicialização - tenta carregar configuração salva
+        // Inicialização
         async function init() {
             const savedUrl = localStorage.getItem('supabaseUrl');
             const savedKey = localStorage.getItem('supabaseKey');
             
             if (savedUrl && savedKey) {
-                // Tem configuração salva, tenta conectar
                 document.getElementById('supabaseUrl').value = savedUrl;
                 document.getElementById('supabaseKey').value = savedKey;
                 await conectarSupabase(savedUrl, savedKey);
             } else {
-                // Primeira vez, mostra configuração
                 document.getElementById('setupBox').style.display = 'block';
                 document.getElementById('cloudStatusBar').style.display = 'flex';
                 document.getElementById('cloudLed').className = 'led';
                 document.getElementById('cloudStatusText').innerHTML = '⚠️ Configure a nuvem para começar';
+                // Mesmo sem nuvem, criar dados vazios
+                dadosCompletos = {};
+                carregarMesAtual();
             }
             
             setupEventListeners();
@@ -447,7 +489,6 @@
                 supabaseClient = window.supabase.createClient(url, key);
                 modoOnline = true;
                 
-                // Verificar se a tabela existe e carregar dados
                 await carregarDaNuvem();
                 
                 document.getElementById('setupBox').style.display = 'none';
@@ -460,6 +501,8 @@
                 document.getElementById('cloudStatusText').innerHTML = '❌ Erro na conexão - Clique em Configurar';
                 document.getElementById('cloudLed').className = 'led';
                 modoOnline = false;
+                dadosCompletos = {};
+                carregarMesAtual();
             }
             
             mostrarLoading(false);
@@ -486,38 +529,21 @@
             mostrarLoading(true);
             
             try {
-                // Tentar buscar dados
                 let { data, error } = await supabaseClient
                     .from('financas')
                     .select('dados')
                     .eq('usuario', 'default')
                     .maybeSingle();
                 
-                if (error) {
-                    if (error.message.includes('does not exist')) {
-                        // Tabela não existe, tentar criar
-                        const criado = await criarTabela();
-                        if (!criado) {
-                            modoOnline = false;
-                            mostrarLoading(false);
-                            return;
-                        }
-                        // Tentar buscar novamente
-                        const result = await supabaseClient
-                            .from('financas')
-                            .select('dados')
-                            .eq('usuario', 'default')
-                            .maybeSingle();
-                        data = result.data;
-                        error = result.error;
+                if (error && error.message.includes('does not exist')) {
+                    const confirmar = confirm(`A tabela 'financas' não existe. Deseja criar?`);
+                    if (confirmar) {
+                        window.open('https://supabase.com/docs/guides/database/tables', '_blank');
+                        alert('Após criar a tabela, clique em Sincronizar.');
                     }
-                    
-                    if (error && error.code !== 'PGRST116') {
-                        throw error;
-                    }
-                }
-                
-                if (data && data.dados) {
+                    modoOnline = false;
+                    dadosCompletos = {};
+                } else if (data && data.dados) {
                     dadosCompletos = data.dados;
                 } else {
                     dadosCompletos = {};
@@ -527,40 +553,11 @@
                 
             } catch (error) {
                 console.error('Erro ao carregar:', error);
-                alert('Erro ao carregar dados da nuvem: ' + error.message);
                 dadosCompletos = {};
                 carregarMesAtual();
             }
             
             mostrarLoading(false);
-        }
-
-        async function criarTabela() {
-            return new Promise((resolve) => {
-                const confirmar = confirm(`A tabela 'financas' não existe no seu Supabase.
-
-Deseja criar agora? Você precisa:
-
-1. Acessar o SQL Editor do seu projeto Supabase
-2. Executar este SQL:
-
-CREATE TABLE financas (
-    id SERIAL PRIMARY KEY,
-    usuario TEXT DEFAULT 'default',
-    dados JSONB NOT NULL,
-    updated_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE INDEX idx_usuario ON financas(usuario);
-
-Clique em OK para abrir o tutorial de criação.`);
-                
-                if (confirmar) {
-                    window.open('https://supabase.com/docs/guides/database/tables', '_blank');
-                    alert('Após criar a tabela, clique em "Sincronizar" para continuar.');
-                }
-                resolve(false);
-            });
         }
 
         async function salvarNaNuvem() {
@@ -580,7 +577,6 @@ Clique em OK para abrir o tutorial de criação.`);
                     return;
                 }
                 
-                // Indicar que salvou
                 const statusText = document.getElementById('cloudStatusText');
                 const originalText = statusText.innerHTML;
                 statusText.innerHTML = '✅ Salvo na nuvem';
@@ -595,11 +591,45 @@ Clique em OK para abrir o tutorial de criação.`);
             }
         }
 
+        // Trocar de mês
+        function trocarMes() {
+            const ano = document.getElementById('selectAno').value;
+            const mes = document.getElementById('selectMes').value;
+            const chave = `${ano}-${mes}`;
+            
+            if (!dadosCompletos[chave]) {
+                dadosCompletos[chave] = { despesas: [], receitas: [], investimentos: [] };
+            }
+            
+            mesAtual = chave;
+            despesas = dadosCompletos[chave].despesas || [];
+            receitas = dadosCompletos[chave].receitas || [];
+            investimentos = dadosCompletos[chave].investimentos || [];
+            
+            atualizarTudo();
+            
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const nomeMes = meses[parseInt(mes) - 1];
+            const statusText = document.getElementById('cloudStatusText');
+            statusText.innerHTML = `📅 ${nomeMes}/${ano} - ${modoOnline ? '✅ Conectado' : '📱 Offline'}`;
+            setTimeout(() => {
+                if (modoOnline) {
+                    document.getElementById('cloudStatusText').innerHTML = '✅ Conectado à nuvem - Salvando automaticamente';
+                } else {
+                    document.getElementById('cloudStatusText').innerHTML = '📱 Modo offline - Dados locais';
+                }
+            }, 2000);
+        }
+
         function carregarMesAtual() {
             const data = new Date();
-            const mes = data.getMonth();
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
             const ano = data.getFullYear();
-            const chave = `${ano}-${String(mes + 1).padStart(2, '0')}`;
+            const chave = `${ano}-${mes}`;
+            
+            // Atualizar os selects
+            document.getElementById('selectMes').value = mes;
+            document.getElementById('selectAno').value = ano;
             
             if (!dadosCompletos[chave]) {
                 dadosCompletos[chave] = { despesas: [], receitas: [], investimentos: [] };
@@ -888,6 +918,7 @@ Clique em OK para abrir o tutorial de criação.`);
             document.getElementById('linkTutorial').addEventListener('click', mostrarTutorial);
             document.getElementById('tabMensalBtn').addEventListener('click', () => mostrarTab('mensal'));
             document.getElementById('tabAnualBtn').addEventListener('click', () => mostrarTab('anual'));
+            document.getElementById('btnTrocarMes').addEventListener('click', trocarMes);
             
             // Formulários
             document.getElementById('formDespesa').addEventListener('submit', (e) => {
