@@ -290,29 +290,6 @@
             text-align: center;
         }
 
-        .graficos-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .graficos-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .graficos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        canvas {
-            max-height: 300px;
-        }
-
         .loading {
             display: none;
             position: fixed;
@@ -557,14 +534,6 @@
                     <div class="stat-card" style="background: linear-gradient(135deg, #f39c12, #e67e22);"><h4>Total Investido</h4><div id="totalInvestido">R$ 0,00</div></div>
                 </div>
             </div>
-
-            <div class="graficos-section">
-                <h2>📊 Gráficos</h2>
-                <div class="graficos-grid">
-                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center; color: #666;">Despesas por Categoria</p></div>
-                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center; color: #666;">Receitas por Categoria</p></div>
-                </div>
-            </div>
         </div>
 
         <div id="tabAnual" style="display: none;">
@@ -598,7 +567,7 @@
         let dadosCompletos = {};
         let mesAtual = "";
         let despesas = [], receitas = [], investimentos = [];
-        let graficoDespesas, graficoReceitas, graficoAnual, graficoAcumulado;
+        let graficoAnual, graficoAcumulado;
 
         function getDestaquePorcentagem(porcentagem) {
             if (porcentagem >= 50) {
@@ -791,7 +760,6 @@
         function atualizarTudo() {
             atualizarListas();
             atualizarSaldos();
-            atualizarGraficos();
             salvarNaNuvem();
         }
 
@@ -876,38 +844,6 @@
             document.getElementById('totalReceitas').innerHTML = `R$ ${totalReceitas.toFixed(2)}`;
             document.getElementById('totalDespesas').innerHTML = `R$ ${totalDespesas.toFixed(2)}`;
             document.getElementById('totalInvestido').innerHTML = `R$ ${totalInvestido.toFixed(2)}`;
-        }
-
-        function atualizarGraficos() {
-            const despesasCat = {};
-            despesas.forEach(i => despesasCat[i.categoria] = (despesasCat[i.categoria] || 0) + i.valor);
-            
-            const ctxDespesas = document.getElementById('graficoDespesas');
-            if (ctxDespesas) {
-                if (graficoDespesas) graficoDespesas.destroy();
-                graficoDespesas = new Chart(ctxDespesas, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(despesasCat),
-                        datasets: [{ data: Object.values(despesasCat), backgroundColor: ['#e74c3c','#f39c12','#3498db','#27ae60','#9b59b6'] }]
-                    }
-                });
-            }
-            
-            const receitasCat = {};
-            receitas.forEach(i => receitasCat[i.categoria] = (receitasCat[i.categoria] || 0) + i.valor);
-            
-            const ctxReceitas = document.getElementById('graficoReceitas');
-            if (ctxReceitas) {
-                if (graficoReceitas) graficoReceitas.destroy();
-                graficoReceitas = new Chart(ctxReceitas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(receitasCat),
-                        datasets: [{ data: Object.values(receitasCat), backgroundColor: ['#3498db','#2ecc71','#f39c12','#1abc9c'] }]
-                    }
-                });
-            }
         }
 
         function removerDespesa(index) {
