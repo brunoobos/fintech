@@ -32,29 +32,25 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #fff, #90e0ef);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .setup-box {
-            background: #1e2746;
+            background: white;
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .setup-box h2 {
-            color: white;
+            color: #333;
             margin-bottom: 20px;
         }
 
         .setup-box p {
-            color: #aaa;
+            color: #666;
         }
 
         .setup-box input {
@@ -62,20 +58,13 @@
             max-width: 500px;
             padding: 12px;
             margin: 10px 0;
-            border: 2px solid #2a3659;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
-            background: #0f1429;
-            color: white;
-        }
-
-        .setup-box input:focus {
-            outline: none;
-            border-color: #90e0ef;
         }
 
         .setup-box button {
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -86,7 +75,7 @@
         }
 
         .cloud-status-bar {
-            background: #1e2746;
+            background: white;
             border-radius: 15px;
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -94,15 +83,13 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .status-indicator {
             display: flex;
             align-items: center;
             gap: 10px;
-            color: white;
         }
 
         .led {
@@ -125,7 +112,7 @@
         }
 
         .mes-selector {
-            background: #1e2746;
+            background: white;
             border-radius: 15px;
             padding: 15px 20px;
             margin-bottom: 20px;
@@ -134,23 +121,20 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .mes-selector select, .mes-selector input {
             padding: 8px 15px;
             border-radius: 8px;
-            border: 2px solid #2a3659;
+            border: 2px solid #e0e0e0;
             font-size: 0.9em;
-            background: #0f1429;
-            color: white;
         }
 
         .mes-selector button {
             width: auto;
             padding: 8px 20px;
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -165,7 +149,7 @@
         }
 
         .tab {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.2);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -175,12 +159,14 @@
         }
 
         .tab:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-            color: white;
+            background: white;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .cards-grid {
@@ -191,18 +177,21 @@
         }
 
         .card {
-            background: #1e2746;
+            background: white;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
         }
 
         .card h2 {
             margin-bottom: 20px;
             padding-left: 15px;
             border-left: 4px solid;
-            color: white;
         }
 
         .card-despesas h2 { border-left-color: #e74c3c; }
@@ -213,31 +202,31 @@
         input, select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #2a3659;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             margin-bottom: 10px;
-            background: #0f1429;
-            color: white;
+            transition: border-color 0.3s;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #00b4d8;
+            border-color: #667eea;
         }
 
         button {
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .lista-itens {
@@ -247,14 +236,18 @@
         }
 
         .item {
-            background: #0f1429;
+            background: #f8f9fa;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
+            transition: background 0.3s;
+        }
+
+        .item:hover {
+            background: #e9ecef;
         }
 
         .delete-btn {
@@ -266,11 +259,10 @@
 
         .delete-btn:hover {
             background: #c0392b;
-            transform: translateY(-2px);
         }
 
         .saldo-principal {
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -291,7 +283,7 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
@@ -299,15 +291,15 @@
         }
 
         .graficos-section {
-            background: #1e2746;
+            background: white;
             border-radius: 15px;
             padding: 25px;
             margin-top: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .graficos-section h2 {
-            color: white;
+            color: #333;
             margin-bottom: 20px;
         }
 
@@ -341,11 +333,15 @@
         }
         
         .investimento-item {
-            background: #0f1429;
+            background: #f8f9fa;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 8px;
-            color: white;
+            transition: background 0.3s;
+        }
+
+        .investimento-item:hover {
+            background: #e9ecef;
         }
 
         #detalhesAno, #detalhesAcumulado {
@@ -353,7 +349,7 @@
         }
 
         #detalhesAno h3, #detalhesAcumulado h3 {
-            color: white;
+            color: #333;
             margin-bottom: 10px;
         }
 
@@ -381,13 +377,13 @@
         }
 
         .porcentagem-boa {
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-            border-left: 3px solid #2ecc71;
+            background: rgba(46, 204, 113, 0.15);
+            color: #27ae60;
+            border-left: 3px solid #27ae60;
         }
 
         .porcentagem-boa strong {
-            color: #2ecc71;
+            color: #27ae60;
         }
 
         .porcentagem-normal {
@@ -399,24 +395,40 @@
             color: white;
             padding: 2px 8px;
             border-radius: 20px;
-            font-size: 0.8em;
+            font-size: 0.75em;
             margin-left: 8px;
             display: inline-block;
         }
 
         .destaque-star::after {
             content: " ⭐";
-            font-size: 1.1em;
         }
 
         .destaque-check::after {
             content: " ✓✓";
-            font-size: 1.1em;
         }
 
         .destaque-fire::after {
             content: " 🔥";
-            font-size: 1.1em;
+        }
+
+        /* Scrollbar personalizada */
+        .lista-itens::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .lista-itens::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .lista-itens::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .lista-itens::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -435,8 +447,8 @@
             <input type="text" id="supabaseUrl" placeholder="URL do Supabase (ex: https://xyz.supabase.co)">
             <input type="text" id="supabaseKey" placeholder="Anon Key (pública)">
             <button id="btnSalvarConfig">✅ Salvar e Conectar</button>
-            <p style="margin-top: 20px; font-size: 0.8em; color: #aaa;">
-                🔒 Dados criptografados e seguros. <a href="#" id="linkTutorial" style="color: #00b4d8;">Como criar conta grátis?</a>
+            <p style="margin-top: 20px; font-size: 0.8em; color: #666;">
+                🔒 Dados criptografados e seguros. <a href="#" id="linkTutorial" style="color: #667eea;">Como criar conta grátis?</a>
             </p>
         </div>
 
@@ -455,7 +467,7 @@
 
         <div class="mes-selector">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span style="font-weight: bold; color: white;">📅 Período:</span>
+                <span style="font-weight: bold; color: #333;">📅 Período:</span>
                 <select id="selectMes">
                     <option value="01">Janeiro</option>
                     <option value="02">Fevereiro</option>
@@ -473,7 +485,7 @@
                 <input type="number" id="selectAno" value="2024" step="1" style="width: 80px;">
                 <button id="btnTrocarMes">Ir</button>
             </div>
-            <div style="font-size: 0.85em; color: #aaa;">
+            <div style="font-size: 0.85em; color: #666;">
                 💡 Dica: Selecione meses anteriores para ver seu histórico
             </div>
         </div>
@@ -549,8 +561,8 @@
             <div class="graficos-section">
                 <h2>📊 Gráficos</h2>
                 <div class="graficos-grid">
-                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center; color: white;">Despesas por Categoria</p></div>
-                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center; color: white;">Receitas por Categoria</p></div>
+                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center; color: #666;">Despesas por Categoria</p></div>
+                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center; color: #666;">Receitas por Categoria</p></div>
                 </div>
             </div>
         </div>
@@ -1021,8 +1033,8 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: 'top', labels: { color: 'white' } },
-                            title: { display: true, text: `Investimentos por Mês - ${ano}`, color: 'white' },
+                            legend: { position: 'top' },
+                            title: { display: true, text: `Investimentos por Mês - ${ano}` },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
@@ -1035,8 +1047,7 @@
                             }
                         },
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)', color: 'white' }, ticks: { color: 'white' } },
-                            x: { ticks: { color: 'white' } }
+                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
                         }
                     }
                 });
@@ -1071,12 +1082,12 @@
                     }
                     
                     detalhesHTML += `
-                        <div style="background: #0f1429; padding: 15px; border-radius: 10px; border-left: 4px solid #00b4d8;">
-                            <h4 style="color: #00b4d8; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
-                            <div style="font-size: 0.9em; color: #ccc;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <h4 style="color: #667eea; margin-bottom: 10px;">${meses[mes-1]}/${ano}</h4>
+                            <div style="font-size: 0.9em;">
                                 <div>💰 Receitas: <strong style="color: #3498db;">R$ ${totalReceitas.toFixed(2)}</strong></div>
                                 <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
-                                <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#2ecc71' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
+                                <div>📊 Saldo: <strong style="color: ${saldoMes >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoMes.toFixed(2)}</strong></div>
                                 <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestimentos.toFixed(2)}</strong></div>
                                 <div class="porcentagem ${classePorcentagem}">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita ${destaqueHtml}</div>
                             </div>
@@ -1184,8 +1195,8 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: 'top', labels: { color: 'white' } },
-                            title: { display: true, text: 'Investimentos Acumulados por Ano', color: 'white' },
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Investimentos Acumulados por Ano' },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
@@ -1198,8 +1209,7 @@
                             }
                         },
                         scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)', color: 'white' }, ticks: { color: 'white' } },
-                            x: { ticks: { color: 'white' } }
+                            y: { beginAtZero: true, title: { display: true, text: 'Valor (R$)' } }
                         }
                     }
                 });
@@ -1230,12 +1240,12 @@
                     }
                     
                     detalhesHTML += `
-                        <div style="background: #0f1429; padding: 15px; border-radius: 10px; border-left: 4px solid #00b4d8;">
-                            <h4 style="color: #00b4d8; margin-bottom: 10px;">📅 Ano ${ano}</h4>
-                            <div style="font-size: 0.9em; color: #ccc;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                            <h4 style="color: #667eea; margin-bottom: 10px;">📅 Ano ${ano}</h4>
+                            <div style="font-size: 0.9em;">
                                 <div>💰 Receitas: <strong style="color: #3498db;">R$ ${totalReceitas.toFixed(2)}</strong></div>
                                 <div>💸 Despesas: <strong style="color: #e74c3c;">R$ ${totalDespesas.toFixed(2)}</strong></div>
-                                <div>📊 Saldo: <strong style="color: ${saldoAno >= 0 ? '#2ecc71' : '#e74c3c'};">R$ ${saldoAno.toFixed(2)}</strong></div>
+                                <div>📊 Saldo: <strong style="color: ${saldoAno >= 0 ? '#27ae60' : '#e74c3c'};">R$ ${saldoAno.toFixed(2)}</strong></div>
                                 <div>📈 Investido: <strong style="color: #f39c12;">R$ ${totalInvestido.toFixed(2)}</strong></div>
                                 <div class="porcentagem ${classePorcentagem}">📊 % Investido: <strong>${porcentagemInvestimento.toFixed(1)}%</strong> da receita anual ${destaqueHtml}</div>
                             </div>
