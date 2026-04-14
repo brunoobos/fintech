@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças na Nuvem - Auto Save</title>
+    <title>Finanças Pessoal</title>
     <style>
         * {
             margin: 0;
@@ -499,7 +499,7 @@
         <div id="tabMensal">
             <div class="cards-grid">
                 <div class="card card-despesas">
-                    <h2>💸 Despesas <span style="font-size: 0.8em; color: #e74c3c;">(Vermelho)</span></h2>
+                    <h2>💸 Despesas <span style="font-size: 0.8em; color: #e74c3c;"></span></h2>
                     <form id="formDespesa">
                         <input type="text" id="descDespesa" placeholder="Descrição" required>
                         <input type="number" id="valorDespesa" step="0.01" placeholder="Valor" required>
@@ -515,7 +515,7 @@
                 </div>
 
                 <div class="card card-receitas">
-                    <h2>💵 Receitas <span style="font-size: 0.8em; color: #3498db;">(Azul)</span></h2>
+                    <h2>💵 Receitas <span style="font-size: 0.8em; color: #3498db;"></span></h2>
                     <form id="formReceita">
                         <input type="text" id="descReceita" placeholder="Descrição" required>
                         <input type="number" id="valorReceita" step="0.01" placeholder="Valor" required>
@@ -558,13 +558,7 @@
                 </div>
             </div>
 
-            <div class="graficos-section">
-                <h2>📊 Gráficos</h2>
-                <div class="graficos-grid">
-                    <div><canvas id="graficoDespesas"></canvas><p style="text-align:center; color: #666;">Despesas por Categoria</p></div>
-                    <div><canvas id="graficoReceitas"></canvas><p style="text-align:center; color: #666;">Receitas por Categoria</p></div>
-                </div>
-            </div>
+           
         </div>
 
         <div id="tabAnual" style="display: none;">
